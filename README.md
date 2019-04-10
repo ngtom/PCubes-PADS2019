@@ -10,7 +10,7 @@ Software Labs:
 * Milestone 8 - Final report on the project (deadline Monday 08/07/2019 23:59:59 CET)
 
 Task:
-Software that able:
+Software, that is able:
 * to upload,read an event log and store it on database
 * to do process cube view operation (Slice and Dice) and materialize process cube view.
 * to select desired Process Mining Algor. (Selector <-> pm4py library)
