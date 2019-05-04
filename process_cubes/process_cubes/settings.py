@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_xes.apps.ImportXesConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'process_cubes.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'process_cubes/templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +77,7 @@ WSGI_APPLICATION = 'process_cubes.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
+        'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.mongodb.net/test?retryWrites=true',
         'NAME': 'pcubes',
     }
 }

@@ -1,3 +1,4 @@
 django #
 djongo #MongoDB Connector
 pm4py
+dnspython

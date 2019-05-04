@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <ul>
+    <li>
+      <a href="{% url 'upload' %}">Upload</a>
+    </li>
+  </ul>
+
+  <p>Imported Event Logs:</p>
+  <ul>
+    {% for log in logs %}
+      <li>
+        <a href="{{ log.pk }}">{{ log.name }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
