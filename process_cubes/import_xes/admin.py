@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import EventLog, Event, Attribute
+from .models import EventLog
 
 # Register your models here.
 
-myModels = [EventLog, Attribute, Event]  # iterable list
-
+myModels = [EventLog]
 admin.site.register(myModels)
