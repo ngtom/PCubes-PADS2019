@@ -1,3 +1,4 @@
+{% load static i18n %}
 <!DOCTYPE html>
 <html>
 
@@ -18,8 +19,9 @@
   <!-- This file stores project-specific CSS -->
 
 
-
   {% endblock %}
+
+  {% block head %}{% endblock head %}
 </head>
 
 <body>
@@ -47,8 +49,10 @@
 
   <!-- Your stuff: Third-party javascript libraries go here -->
 
-
   {% endblock javascript %}
+
+  {% block custom_javascript %}
+  {% endblock custom_javascript %}
 </body>
 
 </html>

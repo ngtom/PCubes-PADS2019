@@ -1,17 +1,54 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
 {% block content %}
-  <form action="upload" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="myfile">
-    <button type="submit">Upload</button>
-  </form>
 
-  {% if uploaded_file_url %}
-    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
-  {% endif %}
+<h4>Upload EventLog</h4>
+<form action="upload" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row">
+    <div class="input-group col">
+      <label class="input-group-btn">
+        <span class="btn btn-primary">
+          Browse<input type="file" style="display: none;" name="myfile">
+        </span>
+      </label>
+      <input type="text" class="form-control" readonly>
+    </div>
+    <div class="col">
+      <button class="btn btn-primary" type="submit">Upload</button>
+    </div>
+  </div>
+</form>
 
-  <p><a href="{% url 'home' %}">Return to home</a></p>
-{% endblock %}
+<p><a href="{% url 'home' %}">Return to home</a></p>
+
+
+
+{% endblock content %}
+
+
+{% block custom_javascript %}
+
+<script type="text/javascript">
+
+  $(function () {
+
+    // We can attach the `fileselect` event to all file inputs on the page
+    $(document).on('change', ':file', function () {
+      var input = $(this),
+        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+      input.trigger('fileselect', label);
+    });
+
+    // We can watch for our custom `fileselect` event like this
+    $(document).ready(function () {
+      $(':file').on('fileselect', function (event, label) {
+        var input = $(this).parents('.input-group').find(':text')
+        input.val(label);
+      });
+    });
+
+  });
+
+</script>
+{% endblock custom_javascript %}
