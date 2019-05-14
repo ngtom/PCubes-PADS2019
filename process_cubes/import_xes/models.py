@@ -2,6 +2,7 @@ from djongo import models
 from pm4py.objects.log.importer.xes import factory as xes_importer
 from pm4py.algo.filtering.log.variants import variants_filter
 from pymongo import MongoClient
+from process_cubes.settings import DATABASES
 
 import os
 import time
@@ -17,7 +18,7 @@ class Attribute(models.Model):
     # to distuingish between trace and event
     parent = models.CharField(max_length=32)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    values = models.ListField()
+    values = models.ListField(null=True)
 
 
 class Dimension(models.Model):
@@ -40,8 +41,8 @@ def import_xes(xes_file, filename):
     t_start = time.time()
 
     # TODO: maybe not the best way to connect to the db
-    client = MongoClient()
-    db = client['pcubes']
+    client = MongoClient(host=DATABASES['default']['HOST'])
+    db = client[DATABASES['default']['NAME']]
     trace_collection = db['traces']
     event_collection = db['events']
 
@@ -74,8 +75,8 @@ def import_xes(xes_file, filename):
         attr for trace in log for event in trace for attr in event}
     trace_attributes = {attr for trace in log for attr in trace.attributes}
 
-    all_attributes = [Attribute(name=attr, parent='event', log=event_log) for attr in event_attributes] + [
-        Attribute(name=attr, parent='trace', log=event_log) for attr in trace_attributes]
+    all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
+        Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
     Attribute.objects.bulk_create(all_attributes)
 
     t2 = time.time()
