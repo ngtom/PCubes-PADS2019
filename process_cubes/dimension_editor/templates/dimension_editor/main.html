@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="">Event-Log:</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12"></div>
+        </div>
+    </div>
+</div>
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h1 class="">Process Cube</h1>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h2 class="">Dimensions:</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4 class="">Number of cells:</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12"><a class="btn btn-secondary w-50" href="#">add dimension</a></div>
+                </div>
+            </div>
+            <div class="col-md-4"><a class="btn btn-primary w-100" href="#">Done</a></div>
+        </div>
+    </div>
+</div>
+
+{% render_table table %}
+
+
+{% endblock %}

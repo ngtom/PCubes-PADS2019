@@ -9,9 +9,6 @@ from .models import EventLog, import_xes
 import time
 
 
-def home(request):
-    eventlogs = EventLog.objects.all()
-    return render(request, 'import_xes/home.html', {'logs': eventlogs})
 
 
 def upload(request):

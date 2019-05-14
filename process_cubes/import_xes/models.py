@@ -17,6 +17,7 @@ class Attribute(models.Model):
     # to distuingish between trace and event
     parent = models.CharField(max_length=32)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
+    values = models.ListField()
 
 
 class Dimension(models.Model):
@@ -26,8 +27,15 @@ class Dimension(models.Model):
         to=Attribute, on_delete=models.CASCADE)
 
 
+class ProcessCube(models.Model):
+    log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
+    dimensions = models.ArrayReferenceField(
+        to=Dimension, on_delete=models.CASCADE)
+
 # Pymongo is used directly to import events, because with Django models it's very slow for large files
 # and I found no way to realize Models with "dynamic fields"
+
+
 def import_xes(xes_file, filename):
     t_start = time.time()
 
