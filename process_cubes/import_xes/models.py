@@ -25,7 +25,7 @@ class Dimension(models.Model):
     name = models.CharField(max_length=255)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     attributes = models.ArrayReferenceField(
-        to=Attribute, on_delete=models.CASCADE)
+        to=Attribute, on_delete=models.CASCADE, null=True)
 
 
 class ProcessCube(models.Model):
@@ -106,3 +106,5 @@ def import_xes(xes_file, filename):
 
     t_end = time.time()
     print('Total: ' + str(t_end - t_start))
+
+    return log_id

@@ -2,3 +2,4 @@ django #
 djongo #MongoDB Connector
 pm4py
 dnspython
+django-tables2

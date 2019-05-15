@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
 
@@ -10,7 +11,9 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12"></div>
+            <div class="col-md-12">
+                {% render_table table %}
+            </div>
         </div>
     </div>
 </div>
@@ -32,7 +35,11 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12"><a class="btn btn-secondary w-50" href="#">add dimension</a></div>
+                    <form action="#" method="POST">
+                        {% csrf_token %}
+                        <input type="submit" class="btn btn-secondary" value="Add Dimension" name="add_dim">
+                    </form>
+                    <!-- <div class="col-md-12"><a class="btn btn-secondary w-50" href="#">add dimension</a></div> -->
                 </div>
             </div>
             <div class="col-md-4"><a class="btn btn-primary w-100" href="#">Done</a></div>
@@ -40,7 +47,47 @@
     </div>
 </div>
 
-{% render_table table %}
+
+<table class="table table-striped">
+    {% for dim in dimensions %}
+    <tr>
+        <th>D: {{ dim.pk }}</th>
+        <th>
+            <input class="form-control" type="text" placeholder="{{ dim.name }}">
+        </th>
+        <th>
+            <form action="#" method="POST">
+                {% csrf_token %}
+                <input type="submit" class="btn btn-danger" value="X" name="del_dim">
+                <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}">
+            </form>
+        </th>
+    </tr>
+    <th colspan="3">Attributes:</th>
+    <tr>
+        <th colspan="3">
+            <table class="table table-striped">
+                {% for attribute in dimension.attributes %}
+                <tr>
+                    <th></th>
+                    <th>{{ attribute.name }}</th>
+                    <th>
+                        <form action="#" method="POST">
+                            {% csrf_token %}
+                            <input type="submit" class="btn btn-danger" value="X" name="rem_attr">
+                            <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}">
+                            <input type="hidden" id="dim_id" name="attr_id" value="{{ attribute.pk }}">
+                        </form>
+                    </th>
+                </tr>
+                {% endfor %}
+            </table>
+        </th>
+    </tr>
+
+
+    {% endfor %}
+</table>
 
 
 {% endblock %}
