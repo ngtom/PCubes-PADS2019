@@ -276,3 +276,5 @@ test/media/
 .env
 .envs/*
 !.envs/.local/
+
+\.idea/
