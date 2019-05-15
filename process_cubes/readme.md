@@ -4,5 +4,7 @@
 
  - Django
  - Djongo
+ - dnspython
  - PM4Py
- - MongoDB
+ - django-tables2
+ - (MongoDB)
