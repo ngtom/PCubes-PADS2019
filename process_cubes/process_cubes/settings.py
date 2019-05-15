@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'import_xes.apps.ImportXesConfig',
     'dimension_editor.apps.DimensionEditorConfig',
     'slice_dice.apps.SliceDiceConfig',
-    'django_tables2'
+    'django_tables2',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +124,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap4.html'
