@@ -267,14 +267,23 @@ tags
 
 ### Project template
 
-test/media/
-
 .pytest_cache/
 
 
 .ipython/
+<<<<<<< HEAD
 .env
 .envs/*
 !.envs/.local/
 
 \.idea/
+=======
+.env
+
+.envs/*
+
+!.envs/.local/
+
+process_cubes/*.xes
+
+>>>>>>> master

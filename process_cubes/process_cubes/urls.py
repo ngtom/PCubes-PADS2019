@@ -15,8 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('import_xes.urls')),
+    path('', views.home, name='home'),
+    path('cube/', include('import_xes.urls')),
+    path('cube/', include('dimension_editor.urls')),
+    path('cube/', include('slice_dice.urls'))
 ]
