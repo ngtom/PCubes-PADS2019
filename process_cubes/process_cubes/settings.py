@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'import_xes.apps.ImportXesConfig',
     'dimension_editor.apps.DimensionEditorConfig',
+    'PCV.apps.PcvConfig',
     'slice_dice.apps.SliceDiceConfig',
     'django_tables2',
 ]
@@ -58,7 +59,7 @@ ROOT_URLCONF = 'process_cubes.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'process_cubes/templates'),],
+        'DIRS': [os.path.join(BASE_DIR, 'process_cubes/templates'), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
