@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('cube/', include('import_xes.urls')),
-    path('cube/', include('dimension_editor.urls')),,
+    path('cube/', include('dimension_editor.urls')),
     path('cube/', include('PCV.urls')),
     path('cube/', include('slice_dice.urls'))
 ]

@@ -15,7 +15,7 @@ class EventLog(models.Model):
 
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
-    # to distuingish between trace and event
+    # to distinguish between trace and event
     parent = models.CharField(max_length=32)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
@@ -71,12 +71,12 @@ def import_xes(xes_file, filename):
 
     # Collect all attributes
     t1 = time.time()
-    event_attributes = {
-        attr for trace in log for event in trace for attr in event}
+    event_attributes = {attr for trace in log for event in trace for attr in event}
     trace_attributes = {attr for trace in log for attr in trace.attributes}
 
     all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
         Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
+    
     Attribute.objects.bulk_create(all_attributes)
 
     t2 = time.time()
@@ -94,7 +94,7 @@ def import_xes(xes_file, filename):
     all_events = [add_trace_attrs(event._dict, trace.attributes)
                   for trace in log for event in trace._list]
     t2 = time.time()
-    print('time to cunstruct events list: ' + str(t2 - t1))
+    print('time to construct events list: ' + str(t2 - t1))
 
     print('#Traces: ' + str(len(all_traces)))
     print('#Events: ' + str(len(all_events)))
