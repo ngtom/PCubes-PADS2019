@@ -38,14 +38,14 @@ If you want to use your local MongoDB instance change the host in the `DATABASE`
 
 The Database can be explored with MongoDB Compass. Use this link `mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.mongodb.net/test?retryWrites=true` to access it.
 
-#### How do I acess the database?
+#### How do I access the database?
 
 For everything that is implemented with Django Models, i.e. exisits as a class in `models.py`:
 https://docs.djangoproject.com/en/2.2/ref/models/querysets/
 
 Events and Traces are not modeled as Django models. These are stored directly in the database with PyMongo.
 
-For exmaple to get all events for a given event log:
+For example to get all events for a given event log:
 ```
 client = MongoClient(host=DATABASES['default']['HOST'])
 db = client[DATABASES['default']['NAME']]
