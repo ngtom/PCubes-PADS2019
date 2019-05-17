@@ -47,60 +47,29 @@
             </div>
         </div>
         <div class="row">
-            <form action="#" method="POST">
-                {% csrf_token %}
-                <input type="submit" class="btn btn-secondary" value="Add Dimension" name="add_dim">
-            </form>
-            <!-- <div class="col-md-12"><a class="btn btn-secondary w-50" href="#">add dimension</a></div> -->
+            <button onclick="add_dimension()">Add Dimension</button>
         </div>
     </div>
     <div class="col-md-4">
-        <a class="btn btn-primary w-100" href="#">Done</a>
+        <a class="btn btn-primary w-100" href="pcv">Done</a>
     </div>
 </div>
 
 
-
-
-<table class="table table-striped">
-    {% for dim in dimensions %}
-    <tr>
-        <th>D: {{ dim.pk }}</th>
-        <th>
-            <input class="form-control" type="text" placeholder="{{ dim.name }}">
-        </th>
-        <th>
-            <form action="#" method="POST">
-                {% csrf_token %}
-                <input type="submit" class="btn btn-danger" value="X" name="del_dim">
-                <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}">
-            </form>
-        </th>
-    </tr>
-    <th colspan="3">Attributes:</th>
-    <tr>
-        <th colspan="3">
-            <table class="table table-striped">
-                {% for attribute in dimension.attributes %}
-                <tr>
-                    <th></th>
-                    <th>{{ attribute.name }}</th>
-                    <th>
-                        <form action="#" method="POST">
-                            {% csrf_token %}
-                            <input type="submit" class="btn btn-danger" value="X" name="rem_attr">
-                            <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}">
-                            <input type="hidden" id="dim_id" name="attr_id" value="{{ attribute.pk }}">
-                        </form>
-                    </th>
-                </tr>
-                {% endfor %}
-            </table>
-        </th>
-    </tr>
-
-
-    {% endfor %}
+<table class="table table-striped" id="dimensions_table">
+    <tbody>
+        {% for dim in dimensions %}
+        <tr id="dim_{{ dim.pk }}">
+            <th>D: {{ dim.pk }}</th>
+            <th>
+                <input class="form-control" type="text" placeholder="{{ dim.name }}">
+            </th>
+            <th>
+                <button onclick="delete_dimension({{dim.pk}});">X</button>
+            </th>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 
@@ -129,8 +98,59 @@
                 });
             }
         });
-
-
     });
+
+    function delete_dimension(dim_id) {
+        console.log("delete_dim " + dim_id);
+
+        $.ajax({
+            url: "remove_dimension", // the endpoint
+            type: "POST", // http method
+            data: { dim_id: dim_id }, // data sent with the post request
+
+            // handle a successful response
+            success: function (json) {
+                console.log('success')
+                $('#dim_' + dim_id).fadeOut('fast', function () { $(this).remove() })
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log('error')
+            }
+        });
+    };
+
+    function add_dimension() {
+        $.ajax({
+            url: "add_dimension", // the endpoint
+            type: "POST", // http method
+
+            // handle a successful response
+            success: function (data) {
+                console.log('success: ' + data)
+                let id = data.dim_id
+                let name = data.dim_name
+
+                $("#dimensions_table > tbody:last-child")
+                    .append(`<tr id='dim_${id}''>
+                                <th>D: ${id}</th>
+                                <th>
+                                    <input class='form-control' type='text' placeholder='${name}'>
+                                </th>
+                                <th>
+                                    <button onclick='delete_dimension(${id});'>X</button>
+                                </th>
+                            </tr`).children(':last')
+                    .hide()
+                    .fadeIn('fast');
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log('error')
+            }
+        });
+    }
 </script>
 {% endblock custom_javascript %}
