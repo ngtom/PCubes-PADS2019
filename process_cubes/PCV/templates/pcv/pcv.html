@@ -1,0 +1,76 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <h1 class="">Process Cube View</h1>
+  </div>
+</div>
+
+<div class="text-center">
+  <button type="button" class="btn btn-primary btn-lg" name="show_cell">
+    Show Cells Table
+  </button>
+</div>
+
+<div class="float-right">
+  <button type="button" class="btn btn-primary btn-sm">
+    Edit Dimension page
+  </button>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <h2 class="">Dimensions:</h2>
+  </div>
+</div>
+
+<table class="table table-striped">
+  {% for dim in dimensions %}
+  <tr>
+    <th>D: {{ dim.pk }}</th>
+    <th>
+      <input class="form-control" type="text" placeholder="{{ dim.name }}" />
+    </th>
+    <th>
+      <form action="#" method="POST">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-info" value="Slice" name="slice_" />
+        <input type="submit" class="btn btn-info" value="Dice" name="dice_" />
+        <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}" />
+      </form>
+    </th>
+  </tr>
+  <th colspan="3">Attributes:</th>
+  <tr>
+    <th colspan="3">
+      <table class="table table-striped">
+        {% for attribute in dimension.attributes %}
+        <tr>
+          <th></th>
+          <th>{{ attribute.name }}</th>
+          <th>
+            <form action="#" method="POST">
+              {% csrf_token %}
+              <input
+                type="hidden"
+                id="dim_id"
+                name="dim_id"
+                value="{{ dim.pk }}"
+              />
+              <input
+                type="hidden"
+                id="dim_id"
+                name="attr_id"
+                value="{{ attribute.pk }}"
+              />
+            </form>
+          </th>
+        </tr>
+        {% endfor %}
+      </table>
+    </th>
+  </tr>
+
+  {% endfor %}
+</table>
+
+{% endblock %}
