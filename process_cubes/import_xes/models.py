@@ -15,8 +15,7 @@ class EventLog(models.Model):
 
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
-    # to distinguish between trace and event
-    parent = models.CharField(max_length=32)
+    parent = models.CharField(max_length=32)# to distinguish trace and event
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
 
@@ -24,14 +23,12 @@ class Attribute(models.Model):
 class Dimension(models.Model):
     name = models.CharField(max_length=255)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    attributes = models.ArrayReferenceField(
-        to=Attribute, on_delete=models.CASCADE, null=True)
+    attributes = models.ArrayReferenceField(to=Attribute, on_delete=models.CASCADE, null=True)
 
 
 class ProcessCube(models.Model):
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    dimensions = models.ArrayReferenceField(
-        to=Dimension, on_delete=models.CASCADE)
+    dimensions = models.ArrayReferenceField(to=Dimension, on_delete=models.CASCADE)
 
 # Pymongo is used directly to import events, because with Django models it's very slow for large files
 # and I found no way to realize Models with "dynamic fields"
@@ -76,7 +73,7 @@ def import_xes(xes_file, filename):
 
     all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
         Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
-    
+
     Attribute.objects.bulk_create(all_attributes)
 
     t2 = time.time()

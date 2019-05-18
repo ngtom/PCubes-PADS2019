@@ -15,11 +15,7 @@ def upload(request):
         myfile = request.FILES['myfile']
         fs = FileSystemStorage()
         filename = fs.save(myfile.name, myfile)
-        uploaded_file_url = fs.url(filename)
-
         log_id = import_xes(filename, fs.path(filename))
-        log = EventLog.objects.get(pk=log_id)
-
         return redirect(dimension_edit, pk=log_id)
     return render(request, 'import_xes/upload.html')
 
