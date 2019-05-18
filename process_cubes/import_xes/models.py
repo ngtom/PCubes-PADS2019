@@ -13,17 +13,19 @@ class EventLog(models.Model):
     xes_file = models.FileField(upload_to='documents/')
 
 
+class Dimension(models.Model):
+    name = models.CharField(max_length=255)
+    log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
+    # attributes = models.ListField()
+
+
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
     parent = models.CharField(max_length=32)# to distinguish trace and event
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
-
-
-class Dimension(models.Model):
-    name = models.CharField(max_length=255)
-    log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    attributes = models.ArrayReferenceField(to=Attribute, on_delete=models.CASCADE, null=True)
+    dimension = models.ForeignKey(
+        to=Dimension, on_delete=models.SET_NULL, null=True)
 
 
 class ProcessCube(models.Model):
@@ -68,7 +70,8 @@ def import_xes(xes_file, filename):
 
     # Collect all attributes
     t1 = time.time()
-    event_attributes = {attr for trace in log for event in trace for attr in event}
+    event_attributes = {
+        attr for trace in log for event in trace for attr in event}
     trace_attributes = {attr for trace in log for attr in trace.attributes}
 
     all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [

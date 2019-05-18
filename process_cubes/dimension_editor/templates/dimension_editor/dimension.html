@@ -1,0 +1,39 @@
+<div class="list-group-item" id="dim_{{ dim.pk }}">
+    <div class="row">
+        <div class="col">D: {{ dim.pk }}</div>
+        <div class="col-2">
+            <input class="form-control" type="text" placeholder="{{ dim.name }}">
+        </div>
+        <div class="col-8"></div>
+        <div class="col justify-content-end">
+            <button class="btn btn-danger" onclick="delete_dimension({{dim.pk}});">X</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            Attributes:
+        </div>
+        <div class="col">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton_{{ dim.pk }}"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Add Attribute
+                </button>
+                <div class="dropdown-menu" dimension="{{ dim.pk }}" name="attribute_dropdown" aria-labelledby="dropdownMenuButton_{{ dim.pk }}">
+                    {% for attribute in free_attributes %}
+                    {% include "dimension_editor/dropdown_button.html" with attribute=attribute %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="list-group" id="attributes_{{ dim.pk }}">
+            {% for attribute in attributes %}
+            {% if attribute.dimension.pk == dim.pk %}
+            {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

@@ -17,32 +17,8 @@ from bson.json_util import dumps
 def dimension_edit(request, pk):
     log = EventLog.objects.get(pk=pk)
     dimensions = Dimension.objects.filter(log=log)
-    # table = build_table(log, request.GET.get('page', 1))
-
-    if(request.POST.get('add_dim')):
-        new_dim = Dimension.objects.create(log=log, name='Dimension ')
-        # new_dim.save()
-
-    elif(request.POST.get('del_dim')):
-        dim_id = request.POST.get('dim_id')
-        dimension = Dimension.objects.get(pk=dim_id)
-        dimension.delete()
-
-    elif(request.POST.get('rem_attr')):
-        dim_id = request.POST.get('dim_id')
-        attr_id = request.POST.get('attr_id')
-
-        dimension = Dimension.objects.get(pk=dim_id)
-        for attr in dimension.attributes:
-            if(attr.pk == attr_id):
-                dimension.attributes.remove(attr)
-
-        dimension.save()
-
-    dimensions = Dimension.objects.filter(log=log)
-
     attributes = Attribute.objects.filter(log=log)
-
+    free_attributes = Attribute.objects.filter(log=log, dimension=None)
     def column(attribute):
         if(attribute.parent == 'trace'):
             name = attribute.parent + ':' + attribute.name
@@ -50,13 +26,14 @@ def dimension_edit(request, pk):
             name = attribute.name
         return name
 
-    attr_names = [column(a) for a in attributes]
+    # attr_names = [column(a) for a in attributes]
 
     return render(request, 'dimension_editor/main.html',
                   {
                       'log': log,
                       'dimensions': dimensions,
-                      'attributes': attr_names
+                      'attributes': attributes,
+                      'free_attributes': free_attributes,
                   })
 
 
@@ -83,7 +60,7 @@ def get_events(request, pk):
 def get_attrs(request, pk):
     log = EventLog.objects.get(pk=pk)
     attributes = Attribute.objects.filter(log=log)
-    
+
     def attr(attribute):
         if(attribute.parent == 'trace'):
             name = attribute.parent + ':' + attribute.name
@@ -91,42 +68,76 @@ def get_attrs(request, pk):
             name = attribute.name
         return name
 
-
     attributes = [{'data': attr(a)} for a in attributes]
 
-    json = dumps(attributes)
     # return HttpResponse(attributes, content_type='application/json')
     return JsonResponse(attributes, safe=False)
 
 
-def build_table(log, page):
-    # TODO: maybe not the best way to connect to the db
-    client = MongoClient(host=DATABASES['default']['HOST'])
-    db = client[DATABASES['default']['NAME']]
-    event_collection = db['events']
+def get_dimensions(request, pk):
+    log = EventLog.objects.get(pk=pk)
+    dimensions = Dimension.objects.filter(log=log)
 
-    t1 = time.time()
-    events = event_collection.find({'log': log.id})
-    # events = [rem_id(e) for e in events]
+    json = dumps(dimensions)
+    # return HttpResponse(attributes, content_type='application/json')
+    return JsonResponse(json, safe=False)
+
+
+def get_free_attributes(request, pk):
+    log = EventLog.objects.get(pk=pk)
+    dimensions = Dimension.objects.filter(log=log)
+
+    for dimension in dimensions:
+        print(dimension.attributes)
+
+    # used_attributes = [attr for dimension in dimensions for attr in Dimension.attributes]
+    # print(used_attributes)
+
+    return JsonResponse("used_attributes", safe=False)
+
+
+def add_attribute(request, pk):
+    dim_id = request.POST.get('dim_id')
+    attr_id = request.POST.get('attr_id')
+
+    dimension = Dimension.objects.get(pk=dim_id)
+    attribute = Attribute.objects.get(pk=attr_id)
+
+    attribute.dimension = dimension
+    attribute.save()
+
+    data = {'dim': dimension, 'attribute': attribute}
+    return render(request, 'dimension_editor/attribute.html', data)
+
+
+def rem_attribute(request, pk):
+    dim_id = request.POST.get('dim_id')
+    attr_id = request.POST.get('attr_id')
+
+    dim = Dimension.objects.get(pk=dim_id)
+
+    attribute = Attribute.objects.get(pk=attr_id)
+    attribute.dimension = None
+    attribute.save()
+
+    data = {'attribute': attribute}
+    return render(request, 'dimension_editor/dropdown_button.html', data)
+
+
+def remove_dimension(request, pk):
+    dim_id = request.POST.get('dim_id')
+    dimension = Dimension.objects.get(pk=dim_id)
+    dimension.delete()
+
+    return JsonResponse(dim_id, safe=False)
+
+
+def add_dimension(request, pk):
+    log = EventLog.objects.get(pk=pk)
+    new_dim = Dimension.objects.create(log=log, name='Dimension')
 
     attributes = Attribute.objects.filter(log=log)
+    free_attributes = Attribute.objects.filter(log=log, dimension=None)
 
-    def column(attribute):
-        if(attribute.parent == 'trace'):
-            name = attribute.parent + ':' + attribute.name
-        else:
-            name = attribute.name
-        return (name, tables.Column(verbose_name=name))
-
-    attr_names = [column(a) for a in attributes]
-
-    page_size = 10
-    # events = events.skip(page_size * (page - 1)).limit(page_size)
-
-    t1 = time.time()
-    log_table = Table(data=events, extra_columns=attr_names)
-    t2 = time.time()
-    print("build table: " + str(t2 - t1))
-    log_table.paginate(page=page, per_page=10)
-
-    return log_table
+    data = {'dim': new_dim, 'attributes': attributes, 'free_attributes': free_attributes}
+    return render(request, 'dimension_editor/dimension.html', data)
