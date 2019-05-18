@@ -5,27 +5,36 @@
 
 
 <div class="row">
-    <div class="col-md-12">
-        <h1 class="">Event-Log:</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <table id="log_table" class="table table-striped">
-            <thead>
-                <tr>
-                    {% for attr in attributes %}
-                    <th>
-                        {{ attr }}
-                    </th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
+    <div class="accordion" id="accordionExample">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseOne"
+                        aria-expanded="false" aria-controls="collapseOne">
+                        Show/Hide Event-Log
+                    </button>
+                </h2>
+            </div>
 
-            </tbody>
-        </table>
+            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">
+                    <table id="log_table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                {% for attr in attributes %}
+                                <th>
+                                    {{attr.parent }}: {{ attr.name }}
+                                </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
 
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -47,7 +56,7 @@
             </div>
         </div>
         <div class="row">
-            <button onclick="add_dimension()">Add Dimension</button>
+            <button class="btn btn-success" onclick="add_dimension()">Add Dimension</button>
         </div>
     </div>
     <div class="col-md-4">
@@ -56,21 +65,11 @@
 </div>
 
 
-<table class="table table-striped" id="dimensions_table">
-    <tbody>
-        {% for dim in dimensions %}
-        <tr id="dim_{{ dim.pk }}">
-            <th>D: {{ dim.pk }}</th>
-            <th>
-                <input class="form-control" type="text" placeholder="{{ dim.name }}">
-            </th>
-            <th>
-                <button onclick="delete_dimension({{dim.pk}});">X</button>
-            </th>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="list-group" id="dimensions_table">
+    {% for dim in dimensions %}
+    {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+    {% endfor %}
+</div>
 
 
 {% endblock %}
@@ -86,6 +85,7 @@
             success: function (attributes) {
                 $('#log_table').DataTable({
                     "processing": true,
+                    "deferRender": true,
                     "ajax": "{% url 'get-events' log.id %}",
                     "columnDefs": [
                         {
@@ -106,7 +106,7 @@
         $.ajax({
             url: "remove_dimension", // the endpoint
             type: "POST", // http method
-            data: { dim_id: dim_id }, // data sent with the post request
+            data: { 'dim_id': dim_id }, // data sent with the post request
 
             // handle a successful response
             success: function (json) {
@@ -128,20 +128,10 @@
 
             // handle a successful response
             success: function (data) {
-                console.log('success: ' + data)
-                let id = data.dim_id
-                let name = data.dim_name
+                let dim_item = data
 
-                $("#dimensions_table > tbody:last-child")
-                    .append(`<tr id='dim_${id}''>
-                                <th>D: ${id}</th>
-                                <th>
-                                    <input class='form-control' type='text' placeholder='${name}'>
-                                </th>
-                                <th>
-                                    <button onclick='delete_dimension(${id});'>X</button>
-                                </th>
-                            </tr`).children(':last')
+                $("#dimensions_table")
+                    .append(dim_item).children(':last')
                     .hide()
                     .fadeIn('fast');
             },
@@ -151,6 +141,52 @@
                 console.log('error')
             }
         });
-    }
+    };
+
+    function add_attribute(button, attr_id) {
+        dim_id = $(button).parent().attr("dimension");
+        $.ajax({
+            url: "add_attribute", // the endpoint
+            type: "POST", // http method
+            data: { 'dim_id': dim_id, 'attr_id': attr_id },
+
+
+
+            // handle a successful response
+            success: function (data) {
+                $("#attributes_" + dim_id)
+                    .append(data).children(':last')
+                    .hide()
+                    .fadeIn('fast');
+
+                $(`button[name="add_attr_${attr_id}"`).remove()
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log('error')
+            }
+        });
+    };
+
+    function rem_attribute(dim_id, attr_id) {
+        $.ajax({
+            url: "rem_attribute", // the endpoint
+            type: "POST", // http method
+            data: { 'dim_id': dim_id, 'attr_id': attr_id },
+
+            // handle a successful response
+            success: function (data) {
+                console.log(data)
+                $('#attr_' + attr_id).fadeOut('fast', function () { $(this).remove() })
+                $('div[name="attribute_dropdown"]').append(data)
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log('error')
+            }
+        });
+    };
 </script>
 {% endblock custom_javascript %}
