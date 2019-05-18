@@ -20,8 +20,10 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('cube/', include('import_xes.urls')),
-    path('cube/', include('dimension_editor.urls')),
-    path('cube/', include('PCV.urls')),
-    path('cube/', include('slice_dice.urls'))
+    path('log/<int:log_id>', views.log, name='log'),
+    path('log/<int:log_id>/create_cube', views.create_cube, name='log'),
+    path('log/', include('import_xes.urls')),
+    path('log/<int:log_id>/cube/', include('dimension_editor.urls')),
+    path('log/<int:log_id>/cube/', include('PCV.urls')),
+    path('log/<int:log_id>/cube/', include('slice_dice.urls'))
 ]

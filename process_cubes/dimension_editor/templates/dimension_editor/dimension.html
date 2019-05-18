@@ -15,11 +15,13 @@
         </div>
         <div class="col">
             <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton_{{ dim.pk }}"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-secondary dropdown-toggle btn-sm" type="button"
+                    id="dropdownMenuButton_{{ dim.pk }}" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
                     Add Attribute
                 </button>
-                <div class="dropdown-menu" dimension="{{ dim.pk }}" name="attribute_dropdown" aria-labelledby="dropdownMenuButton_{{ dim.pk }}">
+                <div class="dropdown-menu" dimension="{{ dim.pk }}" name="attribute_dropdown"
+                    aria-labelledby="dropdownMenuButton_{{ dim.pk }}">
                     {% for attribute in free_attributes %}
                     {% include "dimension_editor/dropdown_button.html" with attribute=attribute %}
                     {% endfor %}
@@ -29,10 +31,8 @@
     </div>
     <div class="row">
         <div class="list-group" id="attributes_{{ dim.pk }}">
-            {% for attribute in attributes %}
-            {% if attribute.dimension.pk == dim.pk %}
+            {% for attribute in dim.attributes.all %}
             {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}
-            {% endif %}
             {% endfor %}
         </div>
     </div>
