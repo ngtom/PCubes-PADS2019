@@ -13,10 +13,9 @@ class EventLog(models.Model):
     xes_file = models.FileField(upload_to='documents/')
 
 
-class Dimension(models.Model):
+class ProcessCube(models.Model):
     name = models.CharField(max_length=255)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    # attributes = models.ListField()
 
 
 class Attribute(models.Model):
@@ -24,13 +23,14 @@ class Attribute(models.Model):
     parent = models.CharField(max_length=32)# to distinguish trace and event
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
-    dimension = models.ForeignKey(
-        to=Dimension, on_delete=models.SET_NULL, null=True)
 
 
-class ProcessCube(models.Model):
-    log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    dimensions = models.ArrayReferenceField(to=Dimension, on_delete=models.CASCADE)
+class Dimension(models.Model):
+    name = models.CharField(max_length=255)
+    # log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
+    cube = models.ForeignKey(to=ProcessCube, on_delete=models.CASCADE)
+    attributes = models.ArrayReferenceField(to=Attribute)
+
 
 # Pymongo is used directly to import events, because with Django models it's very slow for large files
 # and I found no way to realize Models with "dynamic fields"

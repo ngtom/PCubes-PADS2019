@@ -2,15 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
-from import_xes.models import EventLog, Dimension, Attribute
+from import_xes.models import EventLog, Dimension, Attribute, ProcessCube
 
 # Create your views here.
 
 
-def createPCV(request, pk):
-    log = EventLog.objects.get(pk=pk)
-    dimensions = Dimension.objects.filter(log=log)
-    #attributes = Attribute.objects.filter(log=log)
+def createPCV(request, log_id, cube_id):
+    log = EventLog.objects.get(pk=log_id)
+    cube = ProcessCube.objects.get(pk=cube_id)
+    dimensions = Dimension.objects.filter(cube=cube)
 
  
     #todo: hookup
