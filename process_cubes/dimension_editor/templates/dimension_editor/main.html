@@ -52,7 +52,7 @@
     <div class="col-md-4">
         <div class="row">
             <div class="col-md-12">
-                <h4 class="">Number of cells:</h4>
+                <h4 class="">Number of cells: <span id="num_cells">{{ cells }}</span></h4>
             </div>
         </div>
         <div class="row">
@@ -145,21 +145,23 @@
 
     function add_attribute(button, attr_id) {
         dim_id = $(button).parent().attr("dimension");
+        console.log(dim_id)
         $.ajax({
             url: "add_attribute", // the endpoint
             type: "POST", // http method
             data: { 'dim_id': dim_id, 'attr_id': attr_id },
 
-
-
             // handle a successful response
             success: function (data) {
                 $("#attributes_" + dim_id)
-                    .append(data).children(':last')
+                    .append(data['html']).children(':last')
                     .hide()
                     .fadeIn('fast');
 
-                $(`button[name="add_attr_${attr_id}"`).remove()
+                $(`button[name="add_attr_${attr_id}"`).remove();
+
+                $(`#num_elements_${dim_id}`).html(data['num_elements']);
+                $(`#num_cells`).html(data['cells']);
             },
 
             // handle a non-successful response
@@ -170,6 +172,7 @@
     };
 
     function rem_attribute(dim_id, attr_id) {
+        console.log(dim_id)
         $.ajax({
             url: "rem_attribute", // the endpoint
             type: "POST", // http method
@@ -177,9 +180,11 @@
 
             // handle a successful response
             success: function (data) {
-                console.log(data)
                 $('#attr_' + attr_id).fadeOut('fast', function () { $(this).remove() })
-                $('div[name="attribute_dropdown"]').append(data)
+                $('div[name="attribute_dropdown"]').append(data['html'])
+
+                $(`#num_elements_${dim_id}`).html(data['num_elements'])
+                $(`#num_cells`).html(data['cells']);
             },
 
             // handle a non-successful response

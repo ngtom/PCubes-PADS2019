@@ -12,6 +12,7 @@ from process_cubes.settings import DATABASES
 from django.http import HttpResponse, JsonResponse
 from bson.json_util import dumps
 
+
 def upload(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']
@@ -30,8 +31,19 @@ def get_events(request, log_id):
     db = client[DATABASES['default']['NAME']]
     event_collection = db['events']
 
+    def dump_dict(v):
+        if(type(v) is dict):
+            return dumps(v)
+        else:
+            return v
+
     def rem_id(e):
         e.pop("_id", "")
+        if("time:timestamp" in e):
+            e["time:timestamp"] = str(e["time:timestamp"])
+
+        e = {k: dump_dict(e[k]) for k in e}
+
         return e
 
     events = event_collection.find({'log': log_id})
