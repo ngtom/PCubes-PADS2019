@@ -42,37 +42,20 @@
   <tr>
     <th colspan="3">
       <table class="table table-striped">
-        {% for attribute in dimension.attributes %}
-        <tr>
-          <th></th>
-          <th>{{ attribute.name }}</th>
-          <th>
-            <form action="#" method="POST">
-              {% csrf_token %}
-              <input
-                type="hidden"
-                id="dim_id"
-                name="dim_id"
-                value="{{ dim.pk }}"
-              />
-              <input
-                type="hidden"
-                id="dim_id"
-                name="attr_id"
-                value="{{ attribute.pk }}"
-              />
-            </form>
-          </th>
-        </tr>
-        {% endfor %}
+          <div class="row">
+              <div class="list-group" id="attributes_{{ dim.pk }}">
+                  {% for attribute in dim.attributes.all %}
+                  {% include "pcv/attribute.html" with dim=dim attribute=attribute %}
+                  {% endfor %}
+              </div>
+          </div>
       </table>
     </th>
   </tr>
 
   {% endfor %}
 </table>
+
+
+
 {% endblock %}
-
-{% block custom_javascript %}
-
-{% endblock custom_javascript %}
