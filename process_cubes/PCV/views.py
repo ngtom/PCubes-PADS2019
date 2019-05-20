@@ -12,15 +12,14 @@ def createPCV(request, log_id, cube_id):
     cube = ProcessCube.objects.get(pk=cube_id)
     dimensions = Dimension.objects.filter(cube=cube)
 
- 
-    #todo: hookup
-    #return redirect(dimension_edit, pk=log_id)
-    #if(request.POST.get('pcv_edit')):
-    #    return HttpResponseRedirect(reverse('dimension_edit',args=(pk,)))
+    attributes = Attribute.objects.filter(log=log)
+    used_attributes = [attr for dim in dimensions for attr in dim.attributes.all()]
+    free_attributes = [attr for attr in attributes if attr not in used_attributes]
 
     return render(request, 'pcv/pcv.html',
                   {
                       'log': log,
                       'dimensions': dimensions,
-                      #'attributes': attr_names
+                      'attributes': attributes,
+                      'free_attributes': free_attributes
                   })

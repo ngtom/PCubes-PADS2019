@@ -48,12 +48,14 @@ def import_xes(xes_file, filename):
     event_collection = db['events']
 
     t1 = time.time()
+    #raw log from file 
     log = xes_importer.import_log(xes_file)
     t2 = time.time()
     print('xes_importer.import_log: ' + str(t2 - t1))
     # delete file after import?
     # os.remove(xes_file)
 
+    #insert and save the raw log into our data model
     event_log = EventLog(name=filename, xes_file=xes_file)
     event_log.save()
     log_id = event_log.id
@@ -72,14 +74,14 @@ def import_xes(xes_file, filename):
 
     # Collect all attributes
     t1 = time.time()
-    event_attributes = {
-        attr for trace in log for event in trace for attr in event}
+    event_attributes = {attr for trace in log for event in trace for attr in event}
     trace_attributes = {attr for trace in log for attr in trace.attributes}
 
     all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
         Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
 
-    all_attributes = Attribute.objects.bulk_create(all_attributes)
+    #This method inserts the provided list of objects into the database in an efficient manner
+    Attribute.objects.bulk_create(all_attributes)
 
     print(all_attributes[0].id)
 
