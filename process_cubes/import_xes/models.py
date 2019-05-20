@@ -3,10 +3,11 @@ from pm4py.objects.log.importer.xes import factory as xes_importer
 from pm4py.algo.filtering.log.variants import variants_filter
 from pymongo import MongoClient
 from process_cubes.settings import DATABASES
-
+from bson.json_util import dumps
 import os
 import time
-
+from operator import mul
+from functools import reduce
 
 class EventLog(models.Model):
     name = models.CharField(max_length=255)
@@ -31,6 +32,7 @@ class Dimension(models.Model):
     cube = models.ForeignKey(to=ProcessCube, on_delete=models.CASCADE)
     attributes = models.ArrayReferenceField(to=Attribute)
 
+    num_elements = 0
 
 # Pymongo is used directly to import events, because with Django models it's very slow for large files
 # and I found no way to realize Models with "dynamic fields"
@@ -77,7 +79,9 @@ def import_xes(xes_file, filename):
     all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
         Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
 
-    Attribute.objects.bulk_create(all_attributes)
+    all_attributes = Attribute.objects.bulk_create(all_attributes)
+
+    print(all_attributes[0].id)
 
     t2 = time.time()
     print('time to find all attributes list: ' + str(t2 - t1))
@@ -98,6 +102,29 @@ def import_xes(xes_file, filename):
 
     print('#Traces: ' + str(len(all_traces)))
     print('#Events: ' + str(len(all_events)))
+
+    t1 = time.time()
+
+    def is_dict(v):
+        if(type(v) is dict):
+            return dumps(v)
+        else:
+            return v
+
+    all_attributes = Attribute.objects.filter(log=event_log)
+
+    for attribute in all_attributes:
+        name = attribute.name
+        if(attribute.parent == 'trace'):
+            name = 'trace:' + name
+
+        values = {is_dict(event[name])
+                  for event in all_events if name in event}
+        attribute.values = sorted(list(values))
+        attribute.save()
+
+    t2 = time.time()
+    print('time to get values of attributes: ' + str(t2 - t1))
 
     t1 = time.time()
     event_collection.insert_many(all_events, ordered=False)
