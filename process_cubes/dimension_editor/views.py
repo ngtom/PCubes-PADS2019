@@ -26,17 +26,26 @@ def dimension_edit(request, log_id, cube_id):
 
     attributes = Attribute.objects.filter(log=log)
 
-    used_attributes = [attr for dim in dimensions for attr in dim.attributes.all()]
-    free_attributes = [attr for attr in attributes if attr not in used_attributes]
+    used_attributes = [
+        attr for dim in dimensions for attr in dim.attributes.all()]
+    free_attributes = [
+        attr for attr in attributes if attr not in used_attributes]
 
     for dim in dimensions:
         if(len(dim.attributes.all()) > 0):
-            dim.num_elements = reduce(mul, [len(attr.values) for attr in dim.attributes.all()], 1)
+            dim.num_elements = reduce(
+                mul, [len(attr.values) for attr in dim.attributes.all()], 1)
 
-    cells = reduce(mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = reduce(
+        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
 
+    logs = EventLog.objects.all()
+    cubes = ProcessCube.objects.filter(log=log)
     return render(request, 'dimension_editor/main.html',
                   {
+                      'cube': cube,
+                      'logs': logs,
+                      'cubes': cubes,
                       'log': log,
                       'dimensions': dimensions,
                       'attributes': attributes,
@@ -65,7 +74,8 @@ def add_attribute(request, log_id, cube_id):
     if(len(dimension.attributes.all()) == 0):
         num_elements = 0
     else:
-        num_elements = reduce(mul, [len(attr.values) for attr in dimension.attributes.all()], 1)
+        num_elements = reduce(mul, [len(attr.values)
+                                    for attr in dimension.attributes.all()], 1)
 
     dimension.num_elements = num_elements
     dimension.save()
@@ -74,9 +84,11 @@ def add_attribute(request, log_id, cube_id):
     dimensions = Dimension.objects.filter(cube=cube)
     for dim in dimensions:
         if(len(dim.attributes.all()) > 0):
-            dim.num_elements = reduce(mul, [len(attr.values) for attr in dim.attributes.all()], 1)
+            dim.num_elements = reduce(
+                mul, [len(attr.values) for attr in dim.attributes.all()], 1)
 
-    cells = reduce(mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = reduce(
+        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
 
     data = {'dim': dimension, 'attribute': attribute}
     html = render_to_string('dimension_editor/attribute.html', data, request)
@@ -98,20 +110,24 @@ def rem_attribute(request, log_id, cube_id):
     cube = ProcessCube.objects.get(pk=cube_id)
     dimensions = Dimension.objects.filter(cube=cube)
     for d in dimensions:
-        if(len(dim.attributes.all()) > 0):
-            d.num_elements = reduce(mul, [len(attr.values) for attr in d.attributes.all()], 1)
+        if(len(d.attributes.all()) > 0):
+            d.num_elements = reduce(
+                mul, [len(attr.values) for attr in d.attributes.all()], 1)
 
-    cells = reduce(mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = reduce(
+        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
 
     if(len(dim.attributes.all()) == 0):
         num_elements = 0
     else:
-        num_elements = reduce(mul, [len(attr.values) for attr in dim.attributes.all()], 1)
+        num_elements = reduce(mul, [len(attr.values)
+                                    for attr in dim.attributes.all()], 1)
 
     print(dim.pk)
 
     data = {'attribute': attribute}
-    html = render_to_string('dimension_editor/dropdown_button.html', data, request)
+    html = render_to_string(
+        'dimension_editor/dropdown_button.html', data, request)
     ret = {"html": html, 'num_elements': num_elements, 'cells': cells}
 
     return JsonResponse(ret)
@@ -122,7 +138,19 @@ def remove_dimension(request, log_id, cube_id):
     dimension = Dimension.objects.get(pk=dim_id)
     dimension.delete()
 
-    return JsonResponse(dim_id, safe=False)
+    cube = ProcessCube.objects.get(pk=cube_id)
+    dimensions = Dimension.objects.filter(cube=cube)
+    for d in dimensions:
+        if(len(d.attributes.all()) > 0):
+            d.num_elements = reduce(
+                mul, [len(attr.values) for attr in d.attributes.all()], 1)
+
+    cells = reduce(
+        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+
+    data = {"cells": cells}
+
+    return JsonResponse(data)
 
 
 def add_dimension(request, log_id, cube_id):
@@ -131,10 +159,23 @@ def add_dimension(request, log_id, cube_id):
     dimensions = Dimension.objects.filter(cube=cube)
 
     new_dim = Dimension.objects.create(cube=cube, name='Dimension')
-
+    print(new_dim.pk)
     attributes = Attribute.objects.filter(log=log)
-    used_attributes = [attr for dim in dimensions for attr in dim.attributes.all()]
-    free_attributes = [attr for attr in attributes if attr not in used_attributes]
+    used_attributes = [
+        attr for dim in dimensions for attr in dim.attributes.all()]
+    free_attributes = [
+        attr for attr in attributes if attr not in used_attributes]
 
     data = {'dim': new_dim, 'free_attributes': free_attributes}
     return render(request, 'dimension_editor/dimension.html', data)
+
+
+def save_dim_name(request, log_id, cube_id):
+    dim_id = request.POST.get('dim_id')
+    dim_name = request.POST.get('dim_name')
+
+    dimension = Dimension.objects.get(pk=dim_id)
+    dimension.name = dim_name
+    dimension.save()
+
+    return HttpResponse('')

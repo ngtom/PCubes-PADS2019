@@ -4,7 +4,7 @@
 
 
 
-<div class="row">
+<div class="row general-margin">
     <div class="accordion" id="accordionExample">
         <div class="card">
             <div class="card-header" id="headingOne">
@@ -40,7 +40,7 @@
 
 
 
-<div class="row">
+<div class="row general-margin">
     <div class="col-md-4">
         <h1 class="">Process Cube</h1>
         <div class="row">
@@ -109,9 +109,13 @@
             data: { 'dim_id': dim_id }, // data sent with the post request
 
             // handle a successful response
-            success: function (json) {
+            success: function (data) {
                 console.log('success')
                 $('#dim_' + dim_id).fadeOut('fast', function () { $(this).remove() })
+
+
+                $(`#num_cells`).html(data['cells']);
+                console.log(data)
             },
 
             // handle a non-successful response
@@ -129,11 +133,12 @@
             // handle a successful response
             success: function (data) {
                 let dim_item = data
-
+                console.log(data)
                 $("#dimensions_table")
                     .append(dim_item).children(':last')
                     .hide()
                     .fadeIn('fast');
+
             },
 
             // handle a non-successful response
@@ -193,5 +198,46 @@
             }
         });
     };
+
+    $('form[name="save_name_form"]').on('submit', function (event) {
+        event.preventDefault();
+
+        console.log("submit name save")
+
+        var dim_id = $(event.target).children('input[name="dim_id"]').attr("value")
+        var dim_name = $(event.target).children('input[name="dim_name_input"]').val()
+
+        if(!dim_name) {
+            dim_name = $(event.target).children('input[name="dim_name_input"]').attr('placeholder')
+        }
+
+        console.log(dim_id)
+        console.log(dim_name)
+
+        $.ajax({
+            url: "save_dim_name", // the endpoint
+            type: "POST", // http method
+            data: { dim_id: dim_id, dim_name: dim_name }, // data sent with the post request
+
+            // handle a successful response
+            success: function (json) {
+                console.log("success"); // another sanity check
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log("failed");
+            }
+        })
+    });
+
+    $('.input[name="dim_name_input"').keypress(function (e) {
+        if (e.which == 13) {
+            $('form#dim_name').submit();
+            return false;    //<---- Add this line
+        }
+    });
+
+
 </script>
 {% endblock custom_javascript %}

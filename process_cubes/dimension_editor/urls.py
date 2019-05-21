@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:cube_id>/add_dimension', views.add_dimension, name="add-dimension"),
     path('<int:cube_id>/add_attribute', views.add_attribute, name="add-attributes"),
     path('<int:cube_id>/rem_attribute', views.rem_attribute, name="rem-attribute"),
+    path('<int:cube_id>/save_dim_name', views.save_dim_name, name="save-dim-name"),
 ]

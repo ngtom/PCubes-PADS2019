@@ -1,17 +1,33 @@
-<div class="list-group-item" id="dim_{{ dim.pk }}">
+<div class="list-group-item general-margin" id="dim_{{ dim.pk }}">
     <div class="row">
-        <div class="col">D: {{ dim.pk }}</div>
-        <div class="col-2">
+
+        <div class="col-4">
+            <form id="dim_name_{{ dim.pk }}" name="save_name_form" action="save_dim_name" method="POST">
+                {% csrf_token %}
+                <input type="hidden" value="{{ dim.pk }}" name="dim_id">
+                <input class="form-control" type="text" placeholder="{{ dim.name }}" name="dim_name_input">
+                <button class="btn btn-success">Save name</button>
+            </form>
+        </div>
+
+        <!-- <div class="col-2">
             <input class="form-control" type="text" placeholder="{{ dim.name }}">
         </div>
-        <div class="col-8"></div>
+        <div class="col-2">
+            <button class="btn btn-success">Save name</button>
+        </div> -->
+
+        <div class="col-2">
+            <h5>Number of elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h5>
+        </div>
+        <div class="col-3"></div>
         <div class="col justify-content-end">
-            <button class="btn btn-danger" onclick="delete_dimension({{dim.pk}});">X</button>
+            <button class="btn btn-danger" onclick="delete_dimension({{ dim.pk }});">X</button>
         </div>
     </div>
-    <div class="row">
+    <div class="row top-margin">
         <div class="col">
-            Attributes:
+            <h4>Attributes:</h4>
         </div>
         <div class="col">
             <div class="dropdown">
@@ -28,15 +44,15 @@
                 </div>
             </div>
         </div>
-        <div class="col">
-            Number of elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span>
-        </div>
+        <div class="col-10"></div>
     </div>
     <div class="row">
-        <div class="list-group" id="attributes_{{ dim.pk }}">
-            {% for attribute in dim.attributes.all %}
-            {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}
-            {% endfor %}
+        <div class="col-4">
+            <div class="list-group" id="attributes_{{ dim.pk }}">
+                {% for attribute in dim.attributes.all %}
+                {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

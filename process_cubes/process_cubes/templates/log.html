@@ -10,11 +10,12 @@
 <div class="card mb-3">
     <div class="row no-gutters">
         <div class="col-md-4">
-            <a href="{{ log.pk }}/cube/{{ cube.pk }}/dimensions">
+            <a href="{{ log.pk }}/cube/{{ cube.pk }}/dimensions" class="btn btn-primary">
                 <h1>{{ cube.name }}</h1>
             </a>
         </div>
         <div class="card-body">
+            {% if cube.dimensions_set.all %}
             <h5 class="card-title">Dimensions</h5>
             <div class="accordion" id="accordionExample">
                 {% for dim in cube.dimensions_set.all %}
@@ -41,6 +42,7 @@
                 </div>
                 {% endfor %}
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -57,7 +59,7 @@
                         <input type="text" class="form-control" name="cube_name" id="cube_name"
                             aria-describedby="name_help" placeholder="Enter name">
                         <small id="name_help" class="form-text text-muted">Enter a name to recognize the cube.</small>
-                        <button type="submit">New Process Cube</button>
+                        <button class="btn btn-success top-margin" type="submit">New Process Cube</button>
                     </div>
                 </form>
             </div>
