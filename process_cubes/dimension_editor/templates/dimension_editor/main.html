@@ -4,7 +4,7 @@
 
 
 
-<div class="row general-margin">
+<!-- <div class="row general-margin">
     <div class="accordion" id="accordionExample">
         <div class="card">
             <div class="card-header" id="headingOne">
@@ -18,27 +18,29 @@
 
             <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
                 <div class="card-body">
-                    <table id="log_table" class="table table-striped">
-                        <thead>
-                            <tr>
-                                {% for attr in attributes %}
-                                <th>
-                                    {{attr.parent }}: {{ attr.name }}
-                                </th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
 
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div> -->
+
+<div class="row general-margin">
+    <table id="log_table" class="table display nowrap table-striped">
+        <thead class="thead-dark">
+            <tr>
+                {% for attr in attributes %}
+                <th>
+                    {{attr.parent }}: {{ attr.name }}
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
 </div>
-
-
 
 <div class="row general-margin">
     <div class="col-md-4">
@@ -64,13 +66,15 @@
     </div>
 </div>
 
-
-<div class="list-group" id="dimensions_table">
-    {% for dim in dimensions %}
-    {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
-    {% endfor %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="list-group" id="dimensions_table">
+            {% for dim in dimensions %}
+            {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+            {% endfor %}
+        </div>
+    </div>
 </div>
-
 
 {% endblock %}
 
@@ -87,6 +91,7 @@
                     "processing": true,
                     "deferRender": true,
                     "ajax": "{% url 'get-events' log.id %}",
+                    "scrollX": true,
                     "columnDefs": [
                         {
                             "data": null,
@@ -207,7 +212,7 @@
         var dim_id = $(event.target).children('input[name="dim_id"]').attr("value")
         var dim_name = $(event.target).children('input[name="dim_name_input"]').val()
 
-        if(!dim_name) {
+        if (!dim_name) {
             dim_name = $(event.target).children('input[name="dim_name_input"]').attr('placeholder')
         }
 
