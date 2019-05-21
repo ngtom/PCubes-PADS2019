@@ -19,16 +19,74 @@
   <!-- This file stores project-specific CSS -->
 
 
+
   {% endblock %}
 
   {% block head %}{% endblock head %}
 </head>
 
 <body>
-  <div class="container-fluid">
-    {% block content %}
-    {% endblock %}
-  </div>
+
+  <header class="site-header">
+    <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+      <div class="container">
+        <a class="navbar-brand mr-4" href="{% url 'home' %}">Home</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
+          aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarToggle">
+          <div class="navbar-nav mr-auto">
+            <!-- Uploaded Logs dropdown menu -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Uploaded Logs
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for log in logs %}
+                <a class="dropdown-item" href="{% url 'log' log.pk %}">{{ log.name }}</a>
+                {% endfor %}
+              </div>
+            </li>
+            <!-- cubes dropdown -->
+            {% if cubes %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Process Cubes
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for cube in cubes %}
+                <a class="dropdown-item" href="{% url 'PCV-edit' log.pk cube.pk %}">{{ cube.name }}</a>
+                {% endfor %}
+              </div>
+            </li>
+            {% endif %}
+          </div>
+          <!-- Navbar Right Side -->
+          <div class="navbar-nav">
+            {% if log %}
+            <a class="nav-item nav-link" href="{% url 'log' log.pk %}">Log: {{ log.name }}</a>
+
+            {% if cube %}
+            <a class="nav-item nav-link" href="{% url 'PCV-edit' log.pk cube.pk %}">Cube: {{ cube.name }}</a>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </nav>
+  </header>
+  <main role="main" class="container">
+    <div class="row">
+      <div class="col-md-12">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </main>
 
 
   <!-- Le javascript
@@ -52,8 +110,14 @@
   <link rel="stylesheet" type="text/css"
     href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.18/datatables.min.css" />
 
+
+
   <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.18/datatables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+  {% load static %}
+  <link href="{% static 'process_cubes/css/base.css' %}" rel="stylesheet" type="text/css" />
 
   <script>
     var csrftoken = Cookies.get('csrftoken');

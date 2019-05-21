@@ -14,8 +14,9 @@ def home(request):
 def log(request, log_id):
     eventlog = EventLog.objects.get(pk=log_id)
     cubes = ProcessCube.objects.filter(log=eventlog)
+    logs = EventLog.objects.all()
 
-    return render(request, 'log.html', {'log': eventlog, 'cubes': cubes})
+    return render(request, 'log.html', {'log': eventlog, 'cubes': cubes, 'logs': logs})
 
 
 def create_cube(request, log_id):
@@ -24,5 +25,5 @@ def create_cube(request, log_id):
 
     print(name)
     cube = ProcessCube.objects.create(name=name, log=eventlog)
-
+    
     return redirect(dimension_edit, log_id, cube.pk)
