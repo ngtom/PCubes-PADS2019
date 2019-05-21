@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
 
 {% block content %}
 
@@ -54,13 +55,16 @@
             <div class="card-body">
                 <form action="{{log.pk}}/create_cube" method="POST">
                     {% csrf_token %}
-                    <div class="form-group">
+
+                    {{ cube_form|crispy }}
+                    <!-- <div class="form-group">
                         <label for="cube_name">Name</label>
                         <input type="text" class="form-control" name="cube_name" id="cube_name"
                             aria-describedby="name_help" placeholder="Enter name">
                         <small id="name_help" class="form-text text-muted">Enter a name to recognize the cube.</small>
-                        <button class="btn btn-success top-margin" type="submit">New Process Cube</button>
-                    </div>
+                        
+                    </div> -->
+                    <button class="btn btn-success top-margin" type="submit">New Process Cube</button>
                 </form>
             </div>
         </div>

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'PCV.apps.PcvConfig',
     'slice_dice.apps.SliceDiceConfig',
     'django_tables2',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -126,4 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "process_cubes/static"),
+]
+
 DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap4.html'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

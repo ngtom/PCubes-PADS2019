@@ -3,3 +3,4 @@ djongo #MongoDB Connector
 pm4py
 dnspython
 django-tables2
+django-crispy-forms
