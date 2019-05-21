@@ -1,18 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <ul>
-    <li>
-      <a href="{% url 'upload' %}">Upload</a>
-    </li>
-  </ul>
 
-  <p>Imported Event Logs:</p>
-  <ul>
-    {% for log in logs %}
-      <li>
-        <a href="log/{{ log.pk }}">{{ log.name }}</a>
-      </li>
-    {% endfor %}
-  </ul>
+<a class='btn btn-primary' href="{% url 'upload' %}">Upload new event log</a>
+
+<h2>Imported Event Logs:</h2>
+<div class="list-group">
+  {% for log in logs %}
+  <a class="list-group-item list-group-item-action" href="log/{{ log.pk }}">{{ log.name }}</a>
+  {% endfor %}
+</div>
 {% endblock %}
