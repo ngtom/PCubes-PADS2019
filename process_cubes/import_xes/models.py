@@ -38,7 +38,7 @@ class Dimension(models.Model):
 # and I found no way to realize Models with "dynamic fields"
 
 
-def import_xes(xes_file, filename):
+def import_xes(filename, xes_file):
     t_start = time.time()
 
     # TODO: maybe not the best way to connect to the db
