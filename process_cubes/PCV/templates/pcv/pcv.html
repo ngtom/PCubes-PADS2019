@@ -25,10 +25,7 @@
 <table class="table table-striped">
   {% for dim in dimensions %}
   <tr>
-    <th>D: {{ dim.pk }}</th>
-    <th>
-      <input class="form-control" type="text" placeholder="{{ dim.name }}" />
-    </th>
+    <th>name: {{ dim.name }}</th>
     <th>
       <form action="#" method="POST">
         {% csrf_token %}
