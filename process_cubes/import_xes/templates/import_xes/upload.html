@@ -12,7 +12,7 @@
           Browse<input type="file" style="display: none;" name="myfile">
         </span>
       </label>
-      <input type="text" class="form-control" readonly>
+      <input type="text" placeholder="no input selected"class="form-control" readonly>
     </div>
     <div class="col">
       <button class="btn btn-primary" type="submit">Upload</button>
@@ -30,10 +30,6 @@
 {% block custom_javascript %}
 
 <script type="text/javascript">
-
-
-
-
   $(function () {
     // We can attach the `fileselect` event to all file inputs on the page
     $(document).on('change', ':file', function () {
