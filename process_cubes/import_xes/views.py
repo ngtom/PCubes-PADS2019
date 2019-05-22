@@ -19,10 +19,10 @@ def upload(request):
         fs = FileSystemStorage()
         filename = fs.save(myfile.name, myfile)
         log_id = import_xes(filename, fs.path(filename))
-
+        
         return redirect(log_view, log_id)
     return render(request, 'import_xes/upload.html')
-
+        
 
 def get_events(request, log_id):
     client = MongoClient(host=DATABASES['default']['HOST'])
