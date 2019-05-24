@@ -3,30 +3,13 @@
 {% block content %}
 
 
+<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#log_table_row" aria-expanded="false"
+    aria-controls="log_table_row" id="show_hide_table">
+    Show/Hide Log
+</button>
 
-<!-- <div class="row general-margin">
-    <div class="accordion" id="accordionExample">
-        <div class="card">
-            <div class="card-header" id="headingOne">
-                <h2 class="mb-0">
-                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseOne"
-                        aria-expanded="false" aria-controls="collapseOne">
-                        Show/Hide Event-Log
-                    </button>
-                </h2>
-            </div>
-
-            <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
-                <div class="card-body">
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-<div class="row general-margin">
-    <table id="log_table" class="table display nowrap table-striped">
+<div class="collapse" id="log_table_row">
+    <table id="log_table" class="table display nowrap table-striped" style="width: 100%">
         <thead class="thead-dark">
             <tr>
                 {% for attr in attributes %}
@@ -41,6 +24,7 @@
         </tbody>
     </table>
 </div>
+
 
 <div class="row general-margin">
     <div class="col-md-4">
@@ -69,9 +53,11 @@
 <div class="row">
     <div class="col-md-12">
         <div class="list-group" id="dimensions_table">
-            {% for dim in dimensions %}
-            {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
-            {% endfor %}
+            <div style="margin-bottom: 50px">
+                {% for dim in dimensions %}
+                {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
@@ -80,6 +66,17 @@
 
 {% block custom_javascript %}
 <script>
+
+    $('.collapse').on("show.bs.collapse", function (event) {
+        $('#log_table').DataTable().columns.adjust()
+        console.log("show")
+    });
+
+    $('div').on("show.bs.collapse", function (event) {
+        $('#log_table').DataTable().columns.adjust()
+        console.log("show")
+    });
+
     $(document).ready(function () {
 
         $.ajax({
@@ -87,7 +84,7 @@
             dataType: 'json',
             url: "{% url 'get-attrs' log.id %}",
             success: function (attributes) {
-                $('#log_table').DataTable({
+                var table = $('#log_table').DataTable({
                     "processing": true,
                     "deferRender": true,
                     "ajax": "{% url 'get-events' log.id %}",
@@ -99,11 +96,24 @@
                             "targets": '_all'
                         }
                     ],
-                    "columns": attributes
+                    "columns": attributes,
                 });
+
             }
         });
+
+        $('#log_table_row').on("show.bs.collapse", function (e) {
+            $('#log_table').DataTable().columns.adjust();
+            console.log("asd")
+        });
+
+        $('#log_table').on("show.bs.collapse", function (e) {
+            $('#log_table').DataTable().columns.adjust();
+            console.log("asd")
+        });
     });
+
+
 
     function delete_dimension(dim_id) {
         console.log("delete_dim " + dim_id);

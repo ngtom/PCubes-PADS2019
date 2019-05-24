@@ -3,8 +3,6 @@ from django.shortcuts import render
 from import_xes.models import EventLog, Dimension, Attribute, ProcessCube
 from django_tables2 import Table
 import django_tables2 as tables
-from pymongo import MongoClient
-from process_cubes.settings import DATABASES
 import time
 from django.core.paginator import Paginator
 from django.core import serializers
