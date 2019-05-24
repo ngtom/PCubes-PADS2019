@@ -2,10 +2,10 @@
     <div class="row">
 
         <div class="col-4">
-            <form id="dim_name_{{ dim.pk }}" name="save_name_form" action="save_dim_name" method="POST">
+            <form id="dim_name_{{ dim.pk }}" name="save_name_form" action="save_dim_name" method="POST" onsubmit="save_dim_name({{dim.pk}})">
                 {% csrf_token %}
                 <input type="hidden" value="{{ dim.pk }}" name="dim_id">
-                <input class="form-control" type="text" placeholder="{{ dim.name }}" name="dim_name_input">
+                <input id="dim_name_input_{{ dim.pk }}" class="form-control" type="text" placeholder="{{ dim.name }}" name="dim_name_input">
                 <button class="btn btn-success">Save name</button>
             </form>
         </div>

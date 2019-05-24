@@ -53,11 +53,9 @@
 <div class="row">
     <div class="col-md-12">
         <div class="list-group" id="dimensions_table">
-            <div style="margin-bottom: 50px">
-                {% for dim in dimensions %}
-                {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
-                {% endfor %}
-            </div>
+            {% for dim in dimensions %}
+            {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -214,20 +212,14 @@
         });
     };
 
-    $('form[name="save_name_form"]').on('submit', function (event) {
+    function save_dim_name(dim_id) {
         event.preventDefault();
 
-        console.log("submit name save")
-
-        var dim_id = $(event.target).children('input[name="dim_id"]').attr("value")
-        var dim_name = $(event.target).children('input[name="dim_name_input"]').val()
+        var dim_name = $('#dim_name_input_' + dim_id).val()
 
         if (!dim_name) {
-            dim_name = $(event.target).children('input[name="dim_name_input"]').attr('placeholder')
+            dim_name = $('#dim_name_input_' + dim_id).attr('placeholder')
         }
-
-        console.log(dim_id)
-        console.log(dim_name)
 
         $.ajax({
             url: "save_dim_name", // the endpoint
@@ -236,7 +228,7 @@
 
             // handle a successful response
             success: function (json) {
-                console.log("success"); // another sanity check
+                console.log("success savng name " + dim_name); // another sanity check
             },
 
             // handle a non-successful response
@@ -244,7 +236,9 @@
                 console.log("failed");
             }
         })
-    });
+    };
+
+
 
     $('.input[name="dim_name_input"').keypress(function (e) {
         if (e.which == 13) {
