@@ -82,8 +82,8 @@ WSGI_APPLICATION = 'process_cubes.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        # 'HOST': 'localhost',
-        'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.mongodb.net/test?retryWrites=true',
+        'HOST': 'localhost',
+        #'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.mongodb.net/test?retryWrites=true',
         'NAME': 'pcubes',
     }
 }
