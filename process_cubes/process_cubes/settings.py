@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'dimension_editor.apps.DimensionEditorConfig',
     'PCV.apps.PcvConfig',
     'slice_dice.apps.SliceDiceConfig',
+    'cells_list.apps.CellsListConfig',
     'django_tables2',
     'crispy_forms',
 ]
@@ -83,7 +84,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'HOST': 'localhost',
-        #'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.mongodb.net/test?retryWrites=true',
+        # 'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.gcp.mongodb.net/test?retryWrites=true',
         'NAME': 'pcubes',
     }
 }
