@@ -1,58 +1,41 @@
 {% extends 'base.html' %} {% block content %}
-<div class="row">
-  <div class="col-md-12">
-    <h1 class="">Process Cube View</h1>
+<div class="row general-margin">
+    <div class="col-4">
+        <h2 class="">Process Cube View</h2>
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="">Dimensions:</h3>
+            </div>
+        </div>
+    </div>
+
+  <div class="col-4">
+    <div class="row">
+      <div class="text-center">
+        <button type="button" class="btn btn-primary w-100" name="show_cell">
+        Show Cells Table
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-4">
+    <div class="row">
+      <div class="float-right">
+        <a class="btn btn-primary w-100" href="dimensions">Edit Dimension page</a>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="text-center">
-  <button type="button" class="btn btn-primary btn-lg" name="show_cell">
-    Show Cells Table
-  </button>
-</div>
-
-<div class="float-right">
-  <a class="btn btn-primary btn-sm" href="dimensions">Edit Dimension page</a>
-</div>
-
-
 <div class="row">
   <div class="col-md-12">
-    <h2 class="">Dimensions:</h2>
+      <div class="list-group" id="dimensions_table">
+          {% for dim in dimensions %}
+          {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+          {% endfor %}
+      </div>
   </div>
 </div>
-
-<table class="table table-striped">
-  {% for dim in dimensions %}
-  <tr>
-    <th>name: {{ dim.name }}</th>
-    <th>
-      <form action="#" method="POST">
-        {% csrf_token %}
-        <input type="submit" class="btn btn-info" value="Slice" name="slice_" />
-        <input type="submit" class="btn btn-info" value="Dice" name="dice_" />
-        <input type="hidden" id="dim_id" name="dim_id" value="{{ dim.pk }}" />
-      </form>
-    </th>
-  </tr>
-  <th colspan="3">Attributes:</th>
-  <tr>
-    <th colspan="3">
-      <table class="table table-striped">
-          <div class="row">
-              <div class="list-group" id="attributes_{{ dim.pk }}">
-                  {% for attribute in dim.attributes.all %}
-                  {% include "pcv/attribute.html" with dim=dim attribute=attribute %}
-                  {% endfor %}
-              </div>
-          </div>
-      </table>
-    </th>
-  </tr>
-
-  {% endfor %}
-</table>
-
-
 
 {% endblock %}
