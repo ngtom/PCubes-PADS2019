@@ -25,5 +25,6 @@ urlpatterns = [
     path('log/', include('import_xes.urls')),
     path('log/<int:log_id>/cube/', include('dimension_editor.urls')),
     path('log/<int:log_id>/cube/', include('PCV.urls')),
-    path('log/<int:log_id>/cube/', include('slice_dice.urls'))
+    path('log/<int:log_id>/cube/', include('slice_dice.urls')),
+    path('log/<int:log_id>/cube/', include('cells_list.urls'))
 ]
