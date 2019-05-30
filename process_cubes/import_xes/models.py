@@ -9,6 +9,7 @@ import time
 from operator import mul
 from functools import reduce
 
+
 class EventLog(models.Model):
     name = models.CharField(max_length=255)
     xes_file = models.FileField(upload_to='documents/')
@@ -21,7 +22,7 @@ class ProcessCube(models.Model):
 
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
-    parent = models.CharField(max_length=32)# to distinguish trace and event
+    parent = models.CharField(max_length=32)  # to distinguish trace and event
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
 
@@ -48,17 +49,25 @@ def import_xes(filename, xes_file):
     event_collection = db['events']
 
     t1 = time.time()
-    #raw log from file 
+    # raw log from file
     log = xes_importer.import_log(xes_file)
     t2 = time.time()
     print('xes_importer.import_log: ' + str(t2 - t1))
     # delete file after import?
     # os.remove(xes_file)
 
-    #insert and save the raw log into our data model
-    event_log = EventLog(name=filename, xes_file=xes_file)
+    # Get name log log, if specified
+    if('concept:name' in log.attributes):
+        log_name = filename + ': ' + log.attributes['concept:name']
+    else:
+        log_name = filename
+
+    # Construct event log object
+    event_log = EventLog(name=log_name, xes_file=xes_file)
     event_log.save()
     log_id = event_log.id
+
+    # Helper Functions
 
     def add_log_id(trace):
         trace['log'] = log_id
@@ -71,23 +80,23 @@ def import_xes(filename, xes_file):
 
         e['log'] = log_id
         return e
+    # --------
 
     # Collect all attributes
     t1 = time.time()
-    event_attributes = {attr for trace in log for event in trace for attr in event}
-    trace_attributes = {attr for trace in log for attr in trace.attributes}
+    event_attributes = {
+        attr for trace in log for event in trace for (attr, v) in event.items() if type(v) is not dict}
 
-    all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=[]) for attr in event_attributes] + [
-        Attribute(name=attr, parent='trace', log=event_log, values=[]) for attr in trace_attributes]
+    trace_attributes = {attr for trace in log for (
+        attr, v) in trace.attributes.items() if type(v) is not dict}
 
-    #This method inserts the provided list of objects into the database in an efficient manner
-    Attribute.objects.bulk_create(all_attributes)
-
-    print(all_attributes[0].id)
+    # Dict attributes, make each key of the dict to an attribute
+    event_attributes2 = {(k, k2) for trace in log for event in trace for (k, v) in event.items() if type(v) == dict for (k2, v2) in v['children'].items()}
+    trace_attributes2 = {(k, k2) for trace in log for k, v in trace.attributes.items() if type(v) == dict for (k2, v2) in v['children'].items()}
 
     t2 = time.time()
     print('time to find all attributes list: ' + str(t2 - t1))
-    print(all_attributes)
+    # ---------------
 
     # Collect traces + events
     t1 = time.time()
@@ -99,39 +108,54 @@ def import_xes(filename, xes_file):
     t1 = time.time()
     all_events = [add_trace_attrs(event._dict, trace.attributes)
                   for trace in log for event in trace._list]
+
     t2 = time.time()
     print('time to construct events list: ' + str(t2 - t1))
 
-    print('#Traces: ' + str(len(all_traces)))
-    print('#Events: ' + str(len(all_events)))
-
-    t1 = time.time()
-
-    def is_dict(v):
-        if(type(v) is dict):
-            return dumps(v)
-        else:
-            return v
-
-    all_attributes = Attribute.objects.filter(log=event_log)
-
-    for attribute in all_attributes:
-        name = attribute.name
-        if(attribute.parent == 'trace'):
-            name = 'trace:' + name
-
-        values = {is_dict(event[name])
-                  for event in all_events if name in event}
-        attribute.values = sorted(list(values))
-        attribute.save()
-
-    t2 = time.time()
-    print('time to get values of attributes: ' + str(t2 - t1))
-
+    # Save events
     t1 = time.time()
     event_collection.insert_many(all_events, ordered=False)
     t2 = time.time()
     print('time to save events: ' + str(t2 - t1))
+
+    print('#Traces: ' + str(len(all_traces)))
+    print('#Events: ' + str(len(all_events)))
+    # ----------------
+
+    # Helper functions to find all possible values of the attributes
+    def find_values(attr):
+        values = {event[attr] for event in all_events if attr in event}
+        return list(values)
+
+    # Values of attribute with parent (trace)
+    def find_values_p(attr, parent):
+        return find_values(parent + ":" + attr)
+
+    # Values of dictionary attribute
+    def find_values_d(attr, d_name):
+        values = {event[d_name]['children'][attr]
+                  for event in all_events if d_name in event if attr in event[d_name]['children']}
+        return list(values)
+
+    # Values of dictionary attribute with given parent
+    def find_values_d_p(attr, parent, d_name):
+        d_name = parent + ":" + d_name
+        return find_values_d(attr, d_name)
+    # -------------
+
+    # Construct Attribute objects and collect all possible values
+    t1 = time.time()
+    all_attributes = [Attribute(name=attr, parent='event', log=event_log, values=find_values(attr)) for attr in event_attributes] + [
+        Attribute(name=attr, parent='trace', log=event_log, values=find_values_p(attr, 'trace')) for attr in trace_attributes] + [
+        Attribute(name=k2, parent='trace:' + k, log=event_log, values=find_values_d_p(k2, 'trace', k)) for (k, k2) in trace_attributes2] + [
+        Attribute(name=k2, parent='event:' + k, log=event_log, values=find_values_d(k2, k)) for (k, k2) in event_attributes2]
+
+    t2 = time.time()
+    print('time to get values of attributes: ' + str(t2 - t1))
+    # ---------------
+
+    # This method inserts the provided list of objects into the database in an efficient manner
+    Attribute.objects.bulk_create(all_attributes)
 
     t_end = time.time()
     print('Total: ' + str(t_end - t_start))
