@@ -229,11 +229,13 @@
             // handle a successful response
             success: function (json) {
                 console.log("success savng name " + dim_name); // another sanity check
+                $.notify("Saved name!", {autoHideDelay: 1000, className: "success"})
             },
 
             // handle a non-successful response
             error: function (xhr, errmsg, err) {
                 console.log("failed");
+                $.notify("Failed to save name :(", {autoHideDelay: 1000, className: "error"})
             }
         })
     };
