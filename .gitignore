@@ -271,13 +271,9 @@ tags
 
 
 .ipython/
-<<<<<<< HEAD
-.env
-.envs/*
-!.envs/.local/
 
 \.idea/
-=======
+
 .env
 
 .envs/*
@@ -286,4 +282,6 @@ tags
 
 process_cubes/*.xes
 
->>>>>>> master
+
+
+process_cubes/\.vscode/
