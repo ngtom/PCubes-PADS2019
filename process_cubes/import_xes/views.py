@@ -40,9 +40,10 @@ def get_events(request, log_id):
         if("time:timestamp" in e):
             e["time:timestamp"] = str(e["time:timestamp"])
 
-        e = {k: dump_dict(e[k]) for k in e}
-
-        return e
+        e1 = {k: e[k] for k in e if type(e[k]) is not dict}
+        e1.update({(k1 + ":" + k2): e[k1]['children'][k2] for k1 in e if type(e[k1]) is dict for k2 in e[k1]['children']})
+        print(e1)
+        return e1
 
     events = event_collection.find({'log': log_id})
     events = [rem_id(e) for e in events]
@@ -56,7 +57,7 @@ def get_attrs(request, log_id):
     attributes = Attribute.objects.filter(log=log)
 
     def attr(attribute):
-        if(attribute.parent == 'trace'):
+        if(attribute.parent != 'event'):
             name = attribute.parent + ':' + attribute.name
         else:
             name = attribute.name
