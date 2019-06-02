@@ -3,6 +3,7 @@ from import_xes.models import Attribute, Dimension, ProcessCube, EventLog
 from itertools import product, chain
 from bson.json_util import dumps
 from django.http import JsonResponse
+import json
 
 # Create your views here.
 
@@ -42,6 +43,24 @@ def get_cells(request, log_id, cube_id):
     dim_values_list = [get_dim_values(dim) for dim in dimensions]
 
     value_combinations = list(product(*dim_values_list))
-    value_combinations = [list(chain.from_iterable(vs)) for vs in value_combinations]
+    value_combinations = [list(chain.from_iterable(vs))
+                               for vs in value_combinations]
 
     return JsonResponse(value_combinations, safe=False)
+
+
+def model(request, log_id, cube_id):
+    values = request.POST.get("values")
+    values = json.loads(values)
+    
+    values_ = {}
+
+    for k in values:
+        if(k.startswith('event:')):
+            values_[k[6:]] = values[k]
+        else:
+            values_[k] = values[k]
+
+    values = values_
+    print(values)
+    return JsonResponse(values, safe=False)
