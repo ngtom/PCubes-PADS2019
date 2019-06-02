@@ -31,6 +31,9 @@ Have a look at the design specification document. It describes the data model. A
 Currently, the most models are in the `models.py` of the `import_xes` app.
 Slice and Dice objects should be in the `slice-dice` app.
 
+#### Events
+The attribute name of the events start with `trace:` if these are events of traces.
+
 #### MongoDB
 
 Currently we use a free MongoDB Atlas instance. 

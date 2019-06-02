@@ -46,17 +46,31 @@
 {% block custom_javascript %}
 <script>
 
-    function model(row) {
-        entries = $(row).closest('tr').children('td').slice(0, -1).map(function() {return this.innerText})
-        attributes = $('#cells_table thead tr:eq(1)').children().map(function() {return this.innerText})
+    
+
+    function model(event, row) {
+        // event.preventDefault()
+        entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
+        attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
 
         dict = {}
         for (var i = 0; i < attributes.length; i++) {
             dict[attributes[i]] = entries[i]
-        }
-        dict['log'] = '{{ log.pk }}'
 
-        alert("Show model for: " + JSON.stringify(dict))
+            $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
+        }
+        dict['log'] = {{ log.pk }}
+        $(row).append(`<input type="hidden" name="log" value="{{ log.pk }}" /> `)       
+        
+        jsonDict = JSON.stringify(dict)
+        $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)    
+        
+
+        // console.log(JSON.stringify(dict))
+        // alert("Show model for: " + JSON.stringify(dict))
+
+        // return false
+        return true
     };
 
     $(document).ready(function () {
@@ -71,14 +85,26 @@
             "columnDefs": [
                 {
                     "targets": -1,
-                    "defaultContent": "<button class='btn btn-primary' onclick='model(this)'>Model</button>",
+                    "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                                            {% csrf_token %}
+                                            <input type='submit' class='btn btn-primary' value='Model'>
+                                        </form>`,
                     "data": null,
                     "searchable": false,
                     "sortable": false,
                 }
             ],
         });
+
+        $("form[name='model_form']").on('submit', function(){
+        console.log("test")
+
+
+        });
     });
+
+
+    
 
 </script>
 
