@@ -4,4 +4,3 @@ pm4py
 dnspython
 django-tables2
 django-crispy-forms
-#make sure to run this command after installing above mentioned dependencies "python manage.py migrate --run-syncdb"
