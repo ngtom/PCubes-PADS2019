@@ -11,6 +11,13 @@
 
 ## Developers FAQ
 
+### Getting started
+
+ - Install the requirements defined in the `requirements.txt`, e.g. by running: `pip install -r requirements.txt`.
+ - Install MongoDB
+ - run: `python manage.py migrate --run-syncdb` to create the document collections
+ - run `python manage.py runserver` to start the webservice
+
 ### Django
 Getting started: 
 https://docs.djangoproject.com/en/2.2/intro/tutorial01/
@@ -26,13 +33,23 @@ After this, the app has to be added to the `INSTALLED_APPS` in the `settings.py`
 
 ### Data
 
+How is the data stored in the database?
 Have a look at the design specification document. It describes the data model. Additionally, have a look at the `import_xes` function in the `import_xes` module to see how the log is stored in the database.
 
-Currently, the most models are in the `models.py` of the `import_xes` app.
+Currently, the most models are defined in the `models.py` of the `import_xes` app.
 Slice and Dice objects should be in the `slice-dice` app.
 
 #### Events
-The attribute name of the events start with `trace:` if these are events of traces.
+Events are stored in the `events` collection. One document (or object) in this collection stores for each attribute a value. 
+Each event has the attribute names as keys and the values as values.
+Attributes of traces start with 'trace:'.
+The ID of the corresponding trace is stored in `trace:_id`.
+
+#### Traces
+
+Traces are stored in the `traces` collection. Similar to events, each trace object has its attributes as keys and a value as value. 
+Each trace stores the ID of its trace. The trace itself doesn't store which events belong to the trace.
+
 
 #### MongoDB
 
