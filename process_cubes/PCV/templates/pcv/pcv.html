@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% load humanize %} {% block content %}
 <div class="row general-margin">
   <div class="col-sm">
         <h2 class="">Process Cube View</h3>
@@ -27,7 +27,8 @@
 
   <div class="col-sm">
       <div class="row justify-content-end">
-            <h6 class="">Cells total: <span id="num_cells">{{ cells }}</span></h6>
+            <h6 class=""><span class="badge badge-pill badge-primary">Cells total: <span id="num_cells">{{ cells|intcomma }}</span>
+            </span></h6>
       </div>
   </div>
 

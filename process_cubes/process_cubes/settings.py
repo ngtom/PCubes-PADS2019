@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'cells_list.apps.CellsListConfig',
     'django_tables2',
     'crispy_forms',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
