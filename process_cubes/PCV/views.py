@@ -12,6 +12,7 @@ from import_xes.models import EventLog, Dimension, Attribute, ProcessCube
 def createPCV(request, log_id, cube_id):
     log = EventLog.objects.get(pk=log_id)
     cube = ProcessCube.objects.get(pk=cube_id)
+    cubes = ProcessCube.objects.filter(log=log_id)
     dimensions = Dimension.objects.filter(cube=cube)
 
     attributes = Attribute.objects.filter(log=log)
@@ -32,6 +33,7 @@ def createPCV(request, log_id, cube_id):
                   {
                       'cube': cube,
                       'logs': logs,
+                      'cubes': cubes,
                       'log': log,
                       'dimensions': dimensions,
                       'attributes': attributes,
