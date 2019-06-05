@@ -45,10 +45,33 @@ Each event has the attribute names as keys and the values as values.
 Attributes of traces start with 'trace:'.
 The ID of the corresponding trace is stored in `trace:_id`.
 
+Example:
+```
+{
+    "_id":"5ce43529aca227ddfe30a572",
+    "org:group":"A",
+    "lifecycle:transition":"complete",
+    "concept:name":"ER Sepsis Triage",
+    "time:timestamp":"2014-12-21T11:15:45.000Z",
+    "trace:concept:name":"B",
+    "trace:_id":"5ce43528aca227ddfe30a13e",
+    "log":8
+}
+```
+
 #### Traces
 
 Traces are stored in the `traces` collection. Similar to events, each trace object has its attributes as keys and a value as value. 
 Each trace stores the ID of its trace. The trace itself doesn't store which events belong to the trace.
+
+Example:
+```
+{
+    "_id":"5ce43528aca227ddfe30a13e",
+    "concept:name":"B",
+    "log":8
+}
+```
 
 
 #### MongoDB
