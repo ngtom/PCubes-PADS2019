@@ -1,8 +1,8 @@
-{% extends base.html %}
+{% extends 'base.html' %}
 {% block content %}
 
 
-<header>Slicing Dimension: {{dimension.name}}</header>
+<header>Slicing Dimension: {{dim.name}}</header>
 
 <table id="cells_table" class="display table table-striped" style="width: 100%">
     <thead class="thead-dark">
@@ -19,14 +19,11 @@
             </th>
             {% endif %}
 
-            {% endfor %}
-
             <th rowspan="2" class="text-center">
                 Show Model
             </th>
         </tr>
         <tr>
-            {% for dim in dimensions %}
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
