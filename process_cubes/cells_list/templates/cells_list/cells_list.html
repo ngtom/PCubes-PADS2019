@@ -38,6 +38,37 @@
     <tbody>
 
     </tbody>
+    <tfoot class="thead-dark">
+        <tr>
+            {% for dim in dimensions %}
+
+            {% if not dim.attributes.all %}
+            <th rowspan="2">
+                {{ dim.name }}
+            </th>
+            {% endif %}
+            {% if dim.attributes.all %}
+            <th colspan="{{ dim.attributes.all|length }}">
+                {{ dim.name }}
+            </th>
+            {% endif %}
+
+            {% endfor %}
+
+            <th rowspan="2" class="text-center">
+                Show Model
+            </th>
+        </tr>
+        <tr>
+            {% for dim in dimensions %}
+            {% for attr in dim.attributes.all %}
+            <th>
+                {{ attr.parent }}:{{ attr.name }}
+            </th>
+            {% endfor %}
+            {% endfor %}
+        </tr>
+    </tfoot>
 </table>
 
 
@@ -46,7 +77,7 @@
 {% block custom_javascript %}
 <script>
 
-    
+
 
     function model(event, row) {
         // event.preventDefault()
@@ -59,12 +90,13 @@
 
             $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
         }
-        dict['log'] = {{ log.pk }}
-        $(row).append(`<input type="hidden" name="log" value="{{ log.pk }}" /> `)       
-        
+        dict['log'] = "{{ log.pk }}"
+
+        $(row).append(`<input type="hidden" name="log" value="{{ log.pk }}" /> `)
+
         jsonDict = JSON.stringify(dict)
-        $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)    
-        
+        $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)
+
 
         // console.log(JSON.stringify(dict))
         // alert("Show model for: " + JSON.stringify(dict))
@@ -74,6 +106,21 @@
     };
 
     $(document).ready(function () {
+
+        $('#cells_table tfoot tr:eq(1) th').each(function (i) {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title.trim() + '" />');
+
+            $('input', this).on('keyup change', function () {
+                if (table.column(i).search() !== this.value) {
+                    table
+                        .column(i)
+                        .search(this.value)
+                        .draw();
+                }
+            });
+        });
+
         var table = $('#cells_table').DataTable({
             "processing": true,
             "deferRender": true,
@@ -96,15 +143,15 @@
             ],
         });
 
-        $("form[name='model_form']").on('submit', function(){
-        console.log("test")
+        $("form[name='model_form']").on('submit', function () {
+            console.log("test")
 
 
         });
     });
 
 
-    
+
 
 </script>
 

@@ -40,7 +40,7 @@
         <div class="col-10"></div>
     </div>
     <div class="row">
-        <div class="col-4">
+        <div class="col-6">
             <div class="list-group" id="attributes_{{ dim.pk }}">
                 {% for attribute in dim.attributes.all %}
                 {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}

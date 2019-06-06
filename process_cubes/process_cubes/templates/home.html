@@ -5,9 +5,20 @@
 <a class='btn btn-primary' href="{% url 'upload' %}">Upload new event log</a>
 
 <h2>Imported Event Logs:</h2>
-<div class="list-group">
-  {% for log in logs %}
-  <a class="list-group-item list-group-item-action" href="log/{{ log.pk }}">{{ log.name }}</a>
-  {% endfor %}
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="list-group">
+      {% for log in logs %}
+      <a class="list-group-item list-group-item-action clearfix" href="log/{{ log.pk }}">
+        {{ log.name }}
+        <button class="btn btn-danger float-right">
+          Delete
+        </button>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
 </div>
+
 {% endblock %}
