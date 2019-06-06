@@ -9,7 +9,7 @@
         </div>
 
         <div class="col">
-            <form action="#" method="POST">
+            <form action="/log/{{log.pk}}/cube/{{cube.pk}}/dim/{{dim.pk}}/slice" method="POST">
                 {% csrf_token %}
                 <div class="text-right">
                         <input type="submit" class="btn btn-success rounded-circle" value="Slice" name="slice_" />
