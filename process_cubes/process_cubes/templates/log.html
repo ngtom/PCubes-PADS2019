@@ -8,11 +8,14 @@
 
 
 {% for cube in cubes %}
-<div class="card mb-3" style="max-width: 700px;">
+<div class="card mb-3 float" style="max-width: 700px;">
     <div class="card-header">
         <a class="btn btn-lg btn-primary card-img-center" href="{{ log.pk }}/cube/{{ cube.pk }}/pcv">
             {{ cube.name }}
         </a>
+        <button class="btn btn-danger float-right">
+            Delete
+        </button>
     </div>
     <div class="card-body">
         {% if cube.dimension_set.all %}
@@ -28,6 +31,7 @@
                             aria-controls="collapse_{{ dim.pk }}">
                             {{ dim.name }}
                         </button>
+
                     </h2>
                 </div>
 
