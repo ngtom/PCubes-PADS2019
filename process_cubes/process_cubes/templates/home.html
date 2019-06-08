@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
 {% block content %}
 
 <a class='btn btn-primary' href="{% url 'upload' %}">Upload new event log</a>
@@ -12,9 +13,12 @@
       {% for log in logs %}
       <a class="list-group-item list-group-item-action clearfix" href="log/{{ log.pk }}">
         {{ log.name }}
-        <button class="btn btn-danger float-right">
-          Delete
-        </button>
+
+        <form action="log/{{log.pk}}/delete" method="POST">
+          {% csrf_token %}
+          {{ cube_form|crispy }}
+          <button class="btn btn-danger float-right" type="submit">Delete</button>
+      </form>
       </a>
       {% endfor %}
     </div>

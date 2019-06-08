@@ -21,10 +21,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
     path('log/<int:log_id>', views.log, name='log'),
+    path('log/<int:log_id>/delete', views.delete_log, name='log'),
     path('log/<int:log_id>/create_cube', views.create_cube, name='create-cube'),
     path('log/', include('import_xes.urls')),
     path('log/<int:log_id>/cube/', include('dimension_editor.urls')),
     path('log/<int:log_id>/cube/', include('PCV.urls')),
     path('log/<int:log_id>/cube/', include('slice_dice.urls')),
-    path('log/<int:log_id>/cube/', include('cells_list.urls'))
+    path('log/<int:log_id>/cube/', include('cells_list.urls')),
+    path('log/<int:log_id>/cube/<int:cube_id>/delete', views.delete_cube, name='delete-cube'),
 ]
