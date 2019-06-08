@@ -11,6 +11,8 @@ from bson.json_util import dumps
 from operator import mul
 from functools import reduce
 from django.template.loader import render_to_string
+from .models import NumericalHierarchy, DateHierarchy
+from datetime import timedelta
 # Create your views here.
 
 
@@ -19,9 +21,6 @@ def dimension_edit(request, log_id, cube_id):
     cube = ProcessCube.objects.get(pk=cube_id)
     dimensions = Dimension.objects.filter(cube=cube)
 
-    # used_attributes = Attribute.objects.filter(log=log).exclude(dimension__in=dimensions)
-    # print(used_attributes)
-
     attributes = Attribute.objects.filter(log=log)
 
     used_attributes = [
@@ -29,13 +28,7 @@ def dimension_edit(request, log_id, cube_id):
     free_attributes = [
         attr for attr in attributes if attr not in used_attributes]
 
-    for dim in dimensions:
-        if(len(dim.attributes.all()) > 0):
-            dim.num_elements = reduce(
-                mul, [len(attr.values) for attr in dim.attributes.all()], 1)
-
-    cells = reduce(
-        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = cube.get_num_cells()
 
     logs = EventLog.objects.all()
     cubes = ProcessCube.objects.filter(log=log)
@@ -48,7 +41,7 @@ def dimension_edit(request, log_id, cube_id):
                       'dimensions': dimensions,
                       'attributes': attributes,
                       'free_attributes': free_attributes,
-                      'cells': cells
+                      'cells': cells,
                   })
 
 
@@ -72,21 +65,11 @@ def add_attribute(request, log_id, cube_id):
     if(len(dimension.attributes.all()) == 0):
         num_elements = 0
     else:
-        num_elements = reduce(mul, [len(attr.values)
-                                    for attr in dimension.attributes.all()], 1)
-
-    dimension.num_elements = num_elements
-    dimension.save()
+        num_elements = dimension.get_num_elements()
 
     cube = ProcessCube.objects.get(pk=cube_id)
-    dimensions = Dimension.objects.filter(cube=cube)
-    for dim in dimensions:
-        if(len(dim.attributes.all()) > 0):
-            dim.num_elements = reduce(
-                mul, [len(attr.values) for attr in dim.attributes.all()], 1)
 
-    cells = reduce(
-        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = cube.get_num_cells()
 
     data = {'dim': dimension, 'attribute': attribute}
     html = render_to_string('dimension_editor/attribute.html', data, request)
@@ -106,22 +89,13 @@ def rem_attribute(request, log_id, cube_id):
     dim.save()
 
     cube = ProcessCube.objects.get(pk=cube_id)
-    dimensions = Dimension.objects.filter(cube=cube)
-    for d in dimensions:
-        if(len(d.attributes.all()) > 0):
-            d.num_elements = reduce(
-                mul, [len(attr.values) for attr in d.attributes.all()], 1)
 
-    cells = reduce(
-        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = cube.get_num_cells()
 
     if(len(dim.attributes.all()) == 0):
         num_elements = 0
     else:
-        num_elements = reduce(mul, [len(attr.values)
-                                    for attr in dim.attributes.all()], 1)
-
-    print(dim.pk)
+        num_elements = dim.get_num_elements()
 
     data = {'attribute': attribute}
     html = render_to_string(
@@ -137,14 +111,7 @@ def remove_dimension(request, log_id, cube_id):
     dimension.delete()
 
     cube = ProcessCube.objects.get(pk=cube_id)
-    dimensions = Dimension.objects.filter(cube=cube)
-    for d in dimensions:
-        if(len(d.attributes.all()) > 0):
-            d.num_elements = reduce(
-                mul, [len(attr.values) for attr in d.attributes.all()], 1)
-
-    cells = reduce(
-        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
+    cells = cube.get_num_cells()
 
     data = {"cells": cells}
 
@@ -177,3 +144,46 @@ def save_dim_name(request, log_id, cube_id):
     dimension.save()
 
     return HttpResponse('')
+
+
+def save_step(request, log_id, cube_id):
+    if(request.method == "POST"):
+        dim_id = request.POST.get('dim_id')
+        attr_id = request.POST.get('attr_id')
+        dtype = request.POST.get('dtype')
+
+        dimension = Dimension.objects.get(pk=dim_id)
+        attribute = Attribute.objects.get(pk=attr_id)
+
+        if(dtype == 'float'):
+            step = float(request.POST.get('step'))
+            try:
+                hier = NumericalHierarchy.objects.get(
+                    attribute=attribute, dimension=dimension)
+                hier.step_size = step
+                hier.save()
+            except NumericalHierarchy.DoesNotExist:
+                hier = NumericalHierarchy(
+                    dimension=dimension, attribute=attribute, step_size=step)
+                hier.save()
+        elif(dtype == 'date'):
+            step = int(request.POST.get('step'))
+            try:
+                hier = DateHierarchy.objects.get(
+                    attribute=attribute, dimension=dimension)
+                hier.step_size = step
+                hier.save()
+            except DateHierarchy.DoesNotExist:
+                hier = DateHierarchy(dimension=dimension,
+                                     attribute=attribute, step_size=step)
+                hier.save()
+
+        num_elements = dimension.get_num_elements()
+        cube = ProcessCube.objects.get(pk=cube_id)
+        cells = cube.get_num_cells()
+
+        ret = {'num_elements': num_elements, 'cells': cells}
+
+        return JsonResponse(ret)
+
+    return HttpResponse()
