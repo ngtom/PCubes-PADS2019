@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<h1>Slice Dimension: {{ dimension.name }}</h1>
+
+
+
+
+<table id="log_table" class="table display nowrap table-striped" style="width: 100%">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                <button class="btn btn-primary" onclick="selectAll()">Select all</button>
+            </th>
+
+            {% for attr in dimension.attributes.all %}
+            <th>
+                {{ attr.parent }}: {{ attr.name }}
+            </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+    <tfoot class="thead-dark">
+        <tr>
+            <th></th>
+
+            {% for attr in dimension.attributes.all %}
+            <th>
+                {{ attr.parent }}: {{ attr.name }}
+            </th>
+            {% endfor %}
+        </tr>
+    </tfoot>
+</table>
+
+<button class="btn btn-success" onclick="submit_slice()">Slice</button>
+
+{% endblock content %}
+
+
+{% block custom_javascript %}
+<script>
+    $('.collapse').on("show.bs.collapse", function (event) {
+        $('#log_table').DataTable().columns.adjust()
+        console.log("show")
+    });
+
+    $('div').on("show.bs.collapse", function (event) {
+        $('#log_table').DataTable().columns.adjust()
+        console.log("show")
+    });
+
+    $(document).ready(function () {
+
+        var attributes2 = [
+            { data: "Select" }, {% for attr in attr_names %} { "data": "{{ attr}}" }, {% endfor %}];
+
+    var dim_values = {{ dim_values| safe }}
+
+    $('#log_table tfoot th').slice(1).each(function () {
+        var title = $(this).text().trim();
+        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+    });
+
+    var table = $('#log_table').DataTable({
+        "processing": true,
+        "deferRender": true,
+        // "ajax": "{% url 'get-events' log.id %}",
+        "data": dim_values,
+        "scrollX": true,
+        "columnDefs": [
+            {
+                "defaultContent": "",
+                "targets": "_all"
+            },
+            {
+                "data": null,
+                orderable: false,
+                className: 'select-checkbox',
+                targets: 0,
+                width: 100
+            }
+        ],
+        select: {
+            style: 'multi+shift',
+        },
+        order: [[1, 'asc']],
+        // columns: attributes2
+    });
+
+    // Apply the search
+    table.columns().every(function () {
+        var that = this;
+
+        $('input', this.footer()).on('keyup change', function () {
+            if (that.search() !== this.value) {
+                that
+                    .search(this.value)
+                    .draw();
+            }
+        });
+    });
+    
+
+    });
+
+    $('#log_table_row').on("show.bs.collapse", function (e) {
+        $('#log_table').DataTable().columns.adjust();
+        console.log("asd")
+    });
+
+    $('#log_table').on("show.bs.collapse", function (e) {
+        $('#log_table').DataTable().columns.adjust();
+        console.log("asd")
+    });
+
+    function selectAll() {
+        var table = $('#log_table').DataTable()
+
+        let filtered_rows = table.rows({ selected: true })
+        let all_rows = table.rows()
+
+        if (filtered_rows.count() == all_rows.count()) {
+            $('#log_table').DataTable().rows({ filter: 'applied' }).deselect()
+        } else {
+            $('#log_table').DataTable().rows({ filter: 'applied' }).select()
+        }
+    }
+
+    function submit_slice() {
+        var selected = $('#log_table').DataTable().rows({ selected: true }).data()
+        // console.log(selected)
+
+        var data = [];
+        for (var i = 0; i < selected.length; i++) {
+            console.log(selected[i])
+            data.push(JSON.stringify(selected[i].slice(1)))
+        }
+
+        console.log(data)
+
+        $.ajax({
+            url: "save_slice", // the endpoint
+            type: "POST", // http method
+            data: { 'values': data }, // data sent with the post request
+
+            // handle a successful response
+            success: function (json) {
+                console.log("success slicing"); // another sanity check
+                $.notify("Saved name!", { autoHideDelay: 1000, className: "success" })
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                console.log("failed");
+                $.notify("Failed", { autoHideDelay: 1000, className: "error" })
+            }
+        })
+    }
+
+</script>
+
+{% endblock custom_javascript %}

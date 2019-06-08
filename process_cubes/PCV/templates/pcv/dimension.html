@@ -12,7 +12,8 @@
             <form action="/log/{{log.pk}}/cube/{{cube.pk}}/dim/{{dim.pk}}/slice" method="POST">
                 {% csrf_token %}
                 <div class="text-right">
-                        <input type="submit" class="btn btn-success rounded-circle" value="Slice" name="slice_" />
+                    <!-- <input type="submit" class="btn btn-info w-25" value="Slice" name="slice_" /> -->
+                    <a class="btn btn-success btn-rounded-circle" href="slice/{{ dim.pk }}">Slice</a>
                 </div>
             </form>
         </div>
@@ -21,10 +22,11 @@
             <form action="#" method="POST">
                 {% csrf_token %}
                 <div class="text-left">
-                        <input type="submit" class="btn btn-success rounded-circle" value="Dice" name="dice_" />
+                    <!-- <input type="submit" class="btn btn-info w-25" value="Dice" name="dice_" /> -->
+                    <a class="btn btn-success btn-rounded-circle" href="dice/{{ dim.pk }}">Dice</a>
                 </div>
             </form>
-        </div>  
+        </div>
     </div>
 
     <div class="row top-margin">
@@ -33,7 +35,7 @@
         </div>
         <div class="col-10"></div>
     </div>
-    
+
     <div class="row">
         <div class="col-4">
             <div class="list-group" id="attributes_{{ dim.pk }}">
