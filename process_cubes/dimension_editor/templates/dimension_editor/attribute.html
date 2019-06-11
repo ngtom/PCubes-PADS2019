@@ -7,8 +7,11 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col">
+                <div class="col-3">
                     elements: {{ attribute.values|length }}
+                </div>
+                <div class="col-3">
+                    {% include "dimension_editor/attribute_values.html" with attribute=attribute %}
                 </div>
             </div>
         </div>
