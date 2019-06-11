@@ -34,18 +34,11 @@
     <thead class="thead-dark">
         <tr>
             {% for dim in dimensions %}
-
-            {% if not dim.attributes.all %}
-            <th rowspan="2">
-                {{ dim.name }}
-            </th>
-            {% endif %}
             {% if dim.attributes.all %}
             <th colspan="{{ dim.attributes.all|length }}">
                 {{ dim.name }}
             </th>
             {% endif %}
-
             {% endfor %}
 
             <th rowspan="2" class="text-center">
@@ -54,11 +47,13 @@
         </tr>
         <tr>
             {% for dim in dimensions %}
+            {% if dim.attributes.all %}
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
             </th>
             {% endfor %}
+            {% endif %}
             {% endfor %}
         </tr>
     </thead>
@@ -70,10 +65,9 @@
             {% for dim in dimensions %}
 
             {% if not dim.attributes.all %}
-            <th rowspan="2">
-                {{ dim.name }}
-            </th>
+
             {% endif %}
+
             {% if dim.attributes.all %}
             <th colspan="{{ dim.attributes.all|length }}">
                 {{ dim.name }}
@@ -88,11 +82,13 @@
         </tr>
         <tr>
             {% for dim in dimensions %}
+            {% if dim.attributes.all %}
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
             </th>
             {% endfor %}
+            {% endif %}
             {% endfor %}
         </tr>
     </tfoot>
@@ -139,27 +135,40 @@
             });
         });
 
-        var table = $('#cells_table').DataTable({
-            "processing": true,
-            "deferRender": true,
-            "ajax": {
-                'url': "{% url 'get-cells' log.id cube.id %}",
-                'dataSrc': ""
-            },
-            "scrollX": true,
-            "columnDefs": [
-                {
-                    "targets": -1,
-                    "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+        var n_attr = $('#cells_table > thead > tr:first-child').children().length
+        console.log(n_attr)
+
+        if (n_attr == 1) {
+            $('#cells_table > thead > tr:first-child').prepend("<th><i>No Dimensions</i></th>")
+            $('#cells_table > tbody ').append(`<tr>><th>All cells</th><th><form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                                            {% csrf_token %}
+                                            <input type='submit' class='btn btn-primary' value='Model'>
+                                        </form></th</tr>`)
+            $('#cells_table > tfoot').remove()
+        } else {
+
+            var table = $('#cells_table').DataTable({
+                "processing": true,
+                "deferRender": true,
+                "ajax": {
+                    'url': "{% url 'get-cells' log.id cube.id %}",
+                    'dataSrc': ""
+                },
+                "scrollX": true,
+                "columnDefs": [
+                    {
+                        "targets": -1,
+                        "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
                                             {% csrf_token %}
                                             <input type='submit' class='btn btn-primary' value='Model'>
                                         </form>`,
-                    "data": null,
-                    "searchable": false,
-                    "sortable": false,
-                }
-            ],
-        });
+                        "data": null,
+                        "searchable": false,
+                        "sortable": false,
+                    }
+                ],
+            });
+        }
     });
 
 </script>
