@@ -2,7 +2,34 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 
+{% if not dimensions %}
+<table id="cells_table" class="display table table-striped" style="width: 100%">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                <i> No Dimensions</i>
+            </th>
+            <th rowspan="2" class="text-center">
+                Show Model
+            </th>
+        </tr>
+    </thead>
 
+    <tbody>
+        <tr>
+            <th>
+                All events
+            </th>
+            <th>
+                <form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                    {% csrf_token %}
+                    <input type='submit' class='btn btn-primary' value='Model'>
+                </form>
+            </th>
+        </tr>
+    </tbody>
+</table>
+{% else %}
 <table id="cells_table" class="display table table-striped" style="width: 100%">
     <thead class="thead-dark">
         <tr>
@@ -70,17 +97,13 @@
         </tr>
     </tfoot>
 </table>
-
+{% endif %}
 
 {% endblock content %}
 
 {% block custom_javascript %}
 <script>
-
-
-
     function model(event, row) {
-        // event.preventDefault()
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
 
@@ -97,11 +120,6 @@
         jsonDict = JSON.stringify(dict)
         $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)
 
-
-        // console.log(JSON.stringify(dict))
-        // alert("Show model for: " + JSON.stringify(dict))
-
-        // return false
         return true
     };
 
@@ -142,16 +160,7 @@
                 }
             ],
         });
-
-        $("form[name='model_form']").on('submit', function () {
-            console.log("test")
-
-
-        });
     });
-
-
-
 
 </script>
 
