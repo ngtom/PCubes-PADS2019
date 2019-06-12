@@ -52,6 +52,8 @@ def get_cells(request, log_id, cube_id):
 
 def model(request, log_id, cube_id):
     values = request.POST.get("values")
+    if(values == None):
+        values = "{}"
     values = json.loads(values)
     
     values_ = {}
@@ -76,7 +78,7 @@ def model(request, log_id, cube_id):
 
                 values_[name] = values[key]
 
-    values_['log'] = int(values['log'])
+    values_['log'] = log_id
     values = values_
 
     # Construct datetime object to filter with pymongo
