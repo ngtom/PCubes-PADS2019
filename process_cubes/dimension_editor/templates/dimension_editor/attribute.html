@@ -52,9 +52,13 @@
                 <input type="hidden" value="{{ attribute.pk }}" name="dim_id">
                 <div class="row">
                     <div class="col">
+                        {% if attribute.date_hierarchy %}
                         <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
-                            placeholder="days" name="step_input">
-
+                            placeholder="{{ attribute.date_hierarchy.all.0.step_size }}" name="step_input">
+                        {% else %}
+                        <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
+                            placeholder="0" name="step_input">
+                        {% endif %}
                     </div>
                     Days
                     <div class="col">
