@@ -51,6 +51,7 @@
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
+                <input type="hidden" id="{{ attr.parent }}:{{ attr.name }}" name="variable" value="{{ attr.pk }}">
             </th>
             {% endfor %}
             {% endif %}
@@ -100,14 +101,34 @@
 {% block custom_javascript %}
 <script>
     function model(event, row) {
+        // event.preventDefault()
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
+        attribute_ids = $('#cells_table thead tr:eq(1) th input').map(function () { return this.value })
+        
+        console.log(attribute_ids)
 
-        dict = {}
+        var data = []
+
+
+        var dict = {}
+        entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         for (var i = 0; i < attributes.length; i++) {
-            dict[attributes[i]] = entries[i]
+            dict[attribute_ids[i]] = entries[i]
+        }
+        data.push(dict)
 
-            $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
+        var selected = $('#cells_table').DataTable().rows({ selected: true }).data()
+        // console.log(selected)
+
+        for (var i = 0; i < selected.length; i++) {
+            // console.log(selected[i])
+
+            var dict = {}
+            for (var j = 0; j < selected[i].length; j++) {
+                dict[attribute_ids[j]] = selected[i][j]
+            }
+            data.push(dict)
         }
         dict['log'] = "{{ log.pk }}"
 
