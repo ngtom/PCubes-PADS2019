@@ -1,11 +1,28 @@
-from django.db import models
-from import_xes.models import EventLog, Dimension, Attribute, ProcessCube
+from djongo import models
+from import_xes.models import EventLog, ProcessCube, Dimension, Attribute
 
 
 
 # Create your models here.
 
+
+class AttributeRestriction(models.Model):
+    attribute = models.ForeignKey(to=Attribute, on_delete=models.CASCADE)
+    value = models.CharField()
+
+    class Meta:
+        abstract = True
+
+class DimensionRestriction(models.Model):
+    values = models.ArrayModelField(model_container=AttributeRestriction)
+
+    class Meta:
+        abstract = True
+
+class Dice(models.Model):
+    dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
+    values = models.ArrayModelField(model_container=DimensionRestriction)
+
 class Slice(models.Model):
-    element = models.CharField(max_length=255)
-    attribute = models.CharField(max_length=255)
-    dimension = models.ForeignKey(Dimension, null=True, on_delete=models.SET_NULL, verbose_name="the sliced dimension")
+    dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
+    value = models.EmbeddedModelField(model_container=DimensionRestriction)
