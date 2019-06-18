@@ -32,7 +32,7 @@ def get_dim_values(dimension):
             except DateHierarchy.DoesNotExist:
                 skips.append(1)
 
-        orig_values = attribute.values
+        orig_values = sorted(attribute.values)
         range_values = []
 
         num_values = math.ceil(len(orig_values) / step)
