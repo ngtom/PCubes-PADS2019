@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from import_xes.models import Attribute, Dimension, ProcessCube, EventLog
 from itertools import product, chain
+from slice_dice.models import Slice, Dice
 from bson.json_util import dumps
 from django.http import JsonResponse
 import json
@@ -11,8 +12,26 @@ from datetime import datetime
 
 def get_dim_values(dimension):
     attributes = dimension.attributes.all()
-    values_lists = [a.values for a in attributes]
 
+    d_slice = Slice.objects.filter(dimension=dimension)
+    d_dice = Dice.objects.filter(dimension=dimension)
+
+    if(d_slice.exists()):
+        restrictions = d_slice[0].value.values
+        values = {r.attribute.pk: r.value for r in restrictions}
+        values_lists = [[values[a.pk]] for a in attributes]
+    elif(d_dice.exists()):
+        restrictions = d_dice[0].values
+        values = {a.pk: [] for a in attributes}
+        for dr in restrictions:
+            for ar in dr.values:
+                values[ar.attribute.pk].append(ar.value)
+
+        values_lists = [values[a.pk] for a in attributes]
+    else:
+        values_lists = [a.values for a in attributes]
+
+    print(values_lists)
     values = list(product(*values_lists))
     values = [list(v) for v in values]
 
@@ -82,7 +101,7 @@ def model(request, log_id, cube_id):
     values = values_
 
     # Construct datetime object to filter with pymongo
-    time_format = "%Y-%m-%dT%H:%M:%S.%f"
+    time_format = "%Y-%m-%d %H:%M:%S.%f"
     if('time:timestamp' in values):
         if("." not in values['time:timestamp']):
             time_format = time_format[:-3]
@@ -90,7 +109,7 @@ def model(request, log_id, cube_id):
         values['time:timestamp'] = datetime.strptime(
             values['time:timestamp'], time_format)
 
-    time_format = "%Y-%m-%dT%H:%M:%S.%f"
+    time_format = "%Y-%m-%d %H:%M:%S.%f"
     if('trace:time:timestamp' in values):
         if("." not in values['time:timestamp']):
             time_format = time_format[:-3]
