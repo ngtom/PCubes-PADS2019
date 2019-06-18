@@ -69,4 +69,4 @@ def delete_cube(request, log_id, cube_id):
         cube = ProcessCube.objects.get(pk=cube_id)
         cube.delete()
 
-    return HttpResponse()
+    return redirect(log, log_id)

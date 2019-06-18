@@ -2,23 +2,43 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 
+{% if not dimensions %}
+<table id="cells_table" class="display table table-striped" style="width: 100%">
+    <thead class="thead-dark">
+        <tr>
+            <th>
+                <i> No Dimensions</i>
+            </th>
+            <th rowspan="2" class="text-center">
+                Show Model
+            </th>
+        </tr>
+    </thead>
 
+    <tbody>
+        <tr>
+            <th>
+                All events
+            </th>
+            <th>
+                <form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                    {% csrf_token %}
+                    <input type='submit' class='btn btn-primary' value='Model'>
+                </form>
+            </th>
+        </tr>
+    </tbody>
+</table>
+{% else %}
 <table id="cells_table" class="display table table-striped" style="width: 100%">
     <thead class="thead-dark">
         <tr>
             {% for dim in dimensions %}
-
-            {% if not dim.attributes.all %}
-            <th rowspan="2">
-                {{ dim.name }}
-            </th>
-            {% endif %}
             {% if dim.attributes.all %}
             <th colspan="{{ dim.attributes.all|length }}">
                 {{ dim.name }}
             </th>
             {% endif %}
-
             {% endfor %}
 
             <th rowspan="2" class="text-center">
@@ -27,11 +47,14 @@
         </tr>
         <tr>
             {% for dim in dimensions %}
+            {% if dim.attributes.all %}
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
+                <input type="hidden" id="{{ attr.parent }}:{{ attr.name }}" name="variable" value="{{ attr.pk }}">
             </th>
             {% endfor %}
+            {% endif %}
             {% endfor %}
         </tr>
     </thead>
@@ -43,10 +66,9 @@
             {% for dim in dimensions %}
 
             {% if not dim.attributes.all %}
-            <th rowspan="2">
-                {{ dim.name }}
-            </th>
+
             {% endif %}
+
             {% if dim.attributes.all %}
             <th colspan="{{ dim.attributes.all|length }}">
                 {{ dim.name }}
@@ -61,34 +83,52 @@
         </tr>
         <tr>
             {% for dim in dimensions %}
+            {% if dim.attributes.all %}
             {% for attr in dim.attributes.all %}
             <th>
                 {{ attr.parent }}:{{ attr.name }}
             </th>
             {% endfor %}
+            {% endif %}
             {% endfor %}
         </tr>
     </tfoot>
 </table>
-
+{% endif %}
 
 {% endblock content %}
 
 {% block custom_javascript %}
 <script>
-
-
-
     function model(event, row) {
         // event.preventDefault()
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
+        attribute_ids = $('#cells_table thead tr:eq(1) th input').map(function () { return this.value })
+        
+        console.log(attribute_ids)
 
-        dict = {}
+        var data = []
+
+
+        var dict = {}
+        entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         for (var i = 0; i < attributes.length; i++) {
-            dict[attributes[i]] = entries[i]
+            dict[attribute_ids[i]] = entries[i]
+        }
+        data.push(dict)
 
-            $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
+        var selected = $('#cells_table').DataTable().rows({ selected: true }).data()
+        // console.log(selected)
+
+        for (var i = 0; i < selected.length; i++) {
+            // console.log(selected[i])
+
+            var dict = {}
+            for (var j = 0; j < selected[i].length; j++) {
+                dict[attribute_ids[j]] = selected[i][j]
+            }
+            data.push(dict)
         }
         dict['log'] = "{{ log.pk }}"
 
@@ -97,11 +137,6 @@
         jsonDict = JSON.stringify(dict)
         $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)
 
-
-        // console.log(JSON.stringify(dict))
-        // alert("Show model for: " + JSON.stringify(dict))
-
-        // return false
         return true
     };
 
@@ -121,37 +156,41 @@
             });
         });
 
-        var table = $('#cells_table').DataTable({
-            "processing": true,
-            "deferRender": true,
-            "ajax": {
-                'url': "{% url 'get-cells' log.id cube.id %}",
-                'dataSrc': ""
-            },
-            "scrollX": true,
-            "columnDefs": [
-                {
-                    "targets": -1,
-                    "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+        var n_attr = $('#cells_table > thead > tr:first-child').children().length
+        console.log(n_attr)
+
+        if (n_attr == 1) {
+            $('#cells_table > thead > tr:first-child').prepend("<th><i>No Dimensions</i></th>")
+            $('#cells_table > tbody ').append(`<tr>><th>All cells</th><th><form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                                            {% csrf_token %}
+                                            <input type='submit' class='btn btn-primary' value='Model'>
+                                        </form></th</tr>`)
+            $('#cells_table > tfoot').remove()
+        } else {
+
+            var table = $('#cells_table').DataTable({
+                "processing": true,
+                "deferRender": true,
+                "ajax": {
+                    'url': "{% url 'get-cells' log.id cube.id %}",
+                    'dataSrc': ""
+                },
+                "scrollX": true,
+                "columnDefs": [
+                    {
+                        "targets": -1,
+                        "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
                                             {% csrf_token %}
                                             <input type='submit' class='btn btn-primary' value='Model'>
                                         </form>`,
-                    "data": null,
-                    "searchable": false,
-                    "sortable": false,
-                }
-            ],
-        });
-
-        $("form[name='model_form']").on('submit', function () {
-            console.log("test")
-
-
-        });
+                        "data": null,
+                        "searchable": false,
+                        "sortable": false,
+                    }
+                ],
+            });
+        }
     });
-
-
-
 
 </script>
 

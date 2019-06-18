@@ -51,12 +51,19 @@ class Dimension(models.Model):
             step = 1
 
             if(attr.dtype == 'float' or attr.dtype == 'int'):
-                hierarchy = self.num_hierarchy.filter(attribute=attr).all()
-                step = hierarchy[0].step_size
+                hierarchy = self.num_hierarchy.filter(attribute=attr)
+                if(hierarchy.exists()):
+                    step = hierarchy[0].step_size
+                else:
+                    step = 1
             elif(attr.dtype == 'date'):
-                hierarchy = self.date_hierarchy.filter(attribute=attr).all()
-                step = hierarchy[0].step_size
-
+                hierarchy = self.date_hierarchy.filter(attribute=attr)
+                if(hierarchy.exists()):
+                    step = hierarchy[0].step_size
+                else:
+                    step = 1
+            
+            print(step)
             num_values = len(attr.values)
 
             num = num * math.ceil(num_values / step)

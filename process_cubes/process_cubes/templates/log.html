@@ -10,16 +10,19 @@
 {% for cube in cubes %}
 <div class="card mb-3 float" style="max-width: 700px;">
     <div class="card-header">
-        <a class="btn btn-lg btn-primary card-img-center" href="{{ log.pk }}/cube/{{ cube.pk }}/pcv">
-            {{ cube.name }}
-        </a>
-
-        <form action="{{log.pk}}/cube/{{ cube.pk }}/delete" method="POST">
-            {% csrf_token %}
-            {{ cube_form|crispy }}
-            <button class="btn btn-danger float-right" type="submit">Delete</button>
-        </form>
-
+        <div class="row">
+            <div class="col">
+                <a class="btn btn-lg btn-primary card-img-center" href="{{ log.pk }}/cube/{{ cube.pk }}/pcv">
+                    {{ cube.name }}
+                </a>
+            </div>
+            <div class="col">
+                <form action="{{log.pk}}/cube/{{ cube.pk }}/delete" method="POST">
+                    {% csrf_token %}
+                    <button class="btn btn-danger float-right" type="submit">Delete</button>
+                </form>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         {% if cube.dimension_set.all %}

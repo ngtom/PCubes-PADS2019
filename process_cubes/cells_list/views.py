@@ -1,16 +1,55 @@
 from django.shortcuts import render
 from import_xes.models import Attribute, Dimension, ProcessCube, EventLog
+from dimension_editor.models import DateHierarchy, NumericalHierarchy
 from itertools import product, chain
 from bson.json_util import dumps
 from django.http import JsonResponse
 import json
+from datetime import datetime
+import math
 
 # Create your views here.
 
 
 def get_dim_values(dimension):
     attributes = dimension.attributes.all()
-    values_lists = [a.values for a in attributes]
+    values_lists = []
+    skips = []
+    for attribute in attributes:
+        step = 1
+        if(attribute.dtype == "int" or attribute.dtype == "float"):
+            try:
+                hierarchy = NumericalHierarchy.objects.get(attribute=attribute, dimension=dimension)
+                step = hierarchy.step_size
+                skips.append(hierarchy.step_size)
+            except NumericalHierarchy.DoesNotExist:
+                skips.append(1)
+        elif(attribute.dtype == "date"):
+            try:
+                hierarchy = DateHierarchy.objects.get(attribute=attribute, dimension=dimension)
+                step = hierarchy.step_size
+                skips.append(hierarchy.step_size)
+            except DateHierarchy.DoesNotExist:
+                skips.append(1)
+
+        orig_values = attribute.values
+        range_values = []
+
+        num_values = math.ceil(len(orig_values) / step)
+        for i in range(num_values):
+            lower = orig_values[i * step]
+            if(step > 1):
+                upper_ind = (i + 1) * step
+                if(upper_ind >= len(orig_values)):
+                    upper_ind = len(orig_values) - 1
+
+                upper = orig_values[upper_ind]
+                range_values.append('{} to {}'.format(lower, upper))
+            else:
+                range_values.append(lower)
+
+        
+        values_lists.append(range_values)
 
     values = list(product(*values_lists))
     values = [list(v) for v in values]
@@ -51,16 +90,63 @@ def get_cells(request, log_id, cube_id):
 
 def model(request, log_id, cube_id):
     values = request.POST.get("values")
+    if(values == None):
+        values = "{}"
     values = json.loads(values)
     
+    def convert(value, dtype):
+        if(dtype == 'float'):
+            return float(value)
+        elif(dtype == 'int'):
+            return int(value)
+        elif(dtype == 'date'):
+            return convert_date(value)
+        elif(dtype == 'bool'):
+            return bool(value)
+        else:
+            return value
+
+    def convert_date(value):
+        # Construct datetime object to filter with pymongo
+        time_format = "%Y-%m-%dT%H:%M:%S.%f"
+        time_format = "%Y-%m-%d %H:%M:%S.%f"
+        if("." not in value):
+            time_format = time_format[:-3]
+
+        return datetime.strptime(value, time_format)
+
     values_ = {}
 
-    for k in values:
-        if(k.startswith('event:')):
-            values_[k[6:]] = values[k]
-        else:
-            values_[k] = values[k]
+    # Convert to attribute id to name like it is in the events.
+    values_ = {}
+    for key in values:
+        if(key != 'log'):
+            attribute = Attribute.objects.get(pk=key)
+            if(":" in attribute.parent):
+                parent = attribute.parent.split(':')[0]
+                d_name = attribute.parent.split(':')[1]
+                name = attribute.name
 
+                # Query for elements of dictionary
+                queryname = parent + ":" + d_name + ".children." + name
+            else:
+                queryname = attribute.name
+                if(attribute.parent == "trace"):
+                    queryname = 'trace:' + queryname
+
+            if("to" in values[key]):
+                lower = values[key].split("to")[0].strip()
+                upper = values[key].split('to')[1].strip()
+
+                lower = convert(lower, attribute.dtype)
+                upper = convert(upper, attribute.dtype)
+
+                values_[queryname] = {'$gt': lower, '$lt': upper}
+            else:
+                value = convert(values[key], attribute.dtype)
+                values_[queryname] = value
+
+    values_['log'] = log_id
     values = values_
-    print(values)
+
     return JsonResponse(values, safe=False)

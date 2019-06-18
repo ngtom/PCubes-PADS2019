@@ -12,13 +12,17 @@
     <div class="list-group">
       {% for log in logs %}
       <a class="list-group-item list-group-item-action clearfix" href="log/{{ log.pk }}">
-        {{ log.name }}
-
-        <form action="log/{{log.pk}}/delete" method="POST">
-          {% csrf_token %}
-          {{ cube_form|crispy }}
-          <button class="btn btn-danger float-right" type="submit">Delete</button>
-      </form>
+        <div class="row">
+          <div class="col">
+            {{ log.name }}
+          </div>
+          <div class="col">
+            <form action="log/{{log.pk}}/delete" method="POST">
+              {% csrf_token %}
+              <button class="btn btn-danger float-right" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
       </a>
       {% endfor %}
     </div>
