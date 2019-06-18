@@ -86,7 +86,7 @@ DATABASES = {
         'ENGINE': 'djongo',
         'HOST': 'localhost',
         # 'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.gcp.mongodb.net/test?retryWrites=true',
-        'NAME': 'pcubes',
+        'NAME': 'pcubes_hierarchy',
     }
 }
 

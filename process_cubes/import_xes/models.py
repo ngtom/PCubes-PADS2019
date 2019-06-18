@@ -8,7 +8,8 @@ import os
 import time
 from operator import mul
 from functools import reduce
-
+from datetime import datetime
+import math
 
 class EventLog(models.Model):
     name = models.CharField(max_length=255)
@@ -19,24 +20,67 @@ class ProcessCube(models.Model):
     name = models.CharField(max_length=255)
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
 
+    def get_num_cells(self):
+        num = 1
+
+        for dim in self.dimensions.all():
+            elements = dim.get_num_elements()
+            num = num * elements
+
+        return num
 
 class Attribute(models.Model):
     name = models.CharField(max_length=255)
     parent = models.CharField(max_length=32)  # to distinguish trace and event
     log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
     values = models.ListField(null=True)
+    dtype = models.CharField(max_length=10)
 
 
 class Dimension(models.Model):
     name = models.CharField(max_length=255)
     # log = models.ForeignKey(to=EventLog, on_delete=models.CASCADE)
-    cube = models.ForeignKey(to=ProcessCube, on_delete=models.CASCADE)
+    cube = models.ForeignKey(to=ProcessCube, on_delete=models.CASCADE, related_name="dimensions")
     attributes = models.ArrayReferenceField(to=Attribute)
 
     num_elements = 0
 
+    def get_num_elements(self):
+        num = 1
+        for attr in self.attributes.all():
+            step = 1
+
+            if(attr.dtype == 'float' or attr.dtype == 'int'):
+                hierarchy = self.num_hierarchy.filter(attribute=attr)
+                if(hierarchy.exists()):
+                    step = hierarchy[0].step_size
+                else:
+                    step = 1
+            elif(attr.dtype == 'date'):
+                hierarchy = self.date_hierarchy.filter(attribute=attr)
+                if(hierarchy.exists()):
+                    step = hierarchy[0].step_size
+                else:
+                    step = 1
+            
+            print(step)
+            num_values = len(attr.values)
+
+            num = num * math.ceil(num_values / step)
+
+        return num
+
+
 # Pymongo is used directly to import events, because with Django models it's very slow for large files
 # and I found no way to realize Models with "dynamic fields"
+
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def import_xes(filename, xes_file):
@@ -91,8 +135,10 @@ def import_xes(filename, xes_file):
         attr, v) in trace.attributes.items() if type(v) is not dict}
 
     # Dict attributes, make each key of the dict to an attribute
-    event_attributes2 = {(k, k2) for trace in log for event in trace for (k, v) in event.items() if type(v) == dict for (k2, v2) in v['children'].items()}
-    trace_attributes2 = {(k, k2) for trace in log for k, v in trace.attributes.items() if type(v) == dict for (k2, v2) in v['children'].items()}
+    event_attributes2 = {(k, k2) for trace in log for event in trace for (
+        k, v) in event.items() if type(v) == dict for (k2, v2) in v['children'].items()}
+    trace_attributes2 = {(k, k2) for trace in log for k, v in trace.attributes.items(
+    ) if type(v) == dict for (k2, v2) in v['children'].items()}
 
     t2 = time.time()
     print('time to find all attributes list: ' + str(t2 - t1))
@@ -149,6 +195,24 @@ def import_xes(filename, xes_file):
         Attribute(name=attr, parent='trace', log=event_log, values=find_values_p(attr, 'trace')) for attr in trace_attributes] + [
         Attribute(name=k2, parent='trace:' + k, log=event_log, values=find_values_d_p(k2, 'trace', k)) for (k, k2) in trace_attributes2] + [
         Attribute(name=k2, parent='event:' + k, log=event_log, values=find_values_d(k2, k)) for (k, k2) in event_attributes2]
+
+    for attr in all_attributes:
+        if(type(attr.values[0]) == datetime):
+            attr.dtype = "date"
+        elif(type(attr.values[0]) == str):
+            if(is_number(attr.values[0])):
+                attr.dtype = "float"
+            else:
+                attr.dtype = "str"
+        elif(type(attr.values[0]) == int):
+            attr.dtype = "int"
+        elif(type(attr.values[0]) == float):
+            attr.dtype = "float"
+        elif(type(attr.values[0]) == bool):
+            attr.dtype = "bool"
+        else:
+            attr.dtype = "str"
+
 
     t2 = time.time()
     print('time to get values of attributes: ' + str(t2 - t1))
