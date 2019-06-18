@@ -2,16 +2,7 @@
 {% block content %}
 
 
-<h3>Slicing Dimension: {{dim.name}}</h3>
-<button id="slice_button" class="btn-primary btn btn-lg btn-block">Slice</button>
-<br>
-<h2>
-    <span id="slice_text">No element selected. Click on a cell to select one.</span> 
-    <span class="text-primary" id="slice_element"></span>
-    <span id="slice_column_text"></span>
-    <span class="text-primary" id="slice_column"></span>
-    
-</h2>
+<h3>Dicing Dimension: {{dim.name}}</h3>
 
 <table id="cells_table" class="display table table-striped" style="width: 100%">
     <thead class="thead-dark">
@@ -27,6 +18,10 @@
                 {{ dim.name }}
             </th>
             {% endif %}
+
+            <th rowspan="2" class="text-center">
+                Show Model
+            </th>
         </tr>
         <tr>
             {% for attr in dim.attributes.all %}
@@ -40,6 +35,8 @@
 
     </tbody>
 </table>
+
+
 {% endblock content %}
 
 {% block custom_javascript %}
@@ -72,40 +69,6 @@
         return true
     };
 
-    $('#cells_table').on('click', 'tbody td', function() {
-        var table = $('#cells_table').DataTable();
-
-        var idx = table.cell( this ).index().column;
-        var title = table.column( idx ).header();
-
-        slice_element = this.textContent;
-        slice_column = $(title).html();
-        slice_column = slice_column.replace("\n", "");
-        slice_column = slice_column.trim();
-
-        $('#slice_text').text("Selected Element for Slice Operation:");
-        $('#slice_element').text(this.textContent);
-        $('#slice_column_text').text(" in attribute ");
-        $('#slice_column').text(slice_column);
-    });
-
-    var slice_element;
-    var slice_column;
-
-    $('#slice_button').on('click', function(){
-        if(!$('#slice_element').text()){
-            alert('please select element first  by clicking on a cell');
-        } else {
-            $.ajax({
-                type: 'post',
-                url: 'slice/save',
-                data: JSON.stringify({'element': slice_element, 'attribute': slice_column}),
-                success: function(){/*IMPLEMENT*/},
-                dataType: 'json'
-            });
-        }
-    });
-
     $(document).ready(function () {
         var table = $('#cells_table').DataTable({
             "processing": true,
@@ -115,7 +78,19 @@
                 'dataSrc': ""
             },
             "scrollX": true,
-            });
+            "columnDefs": [
+                {
+                    "targets": -1,
+                    "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
+                                            {% csrf_token %}
+                                            <input type='submit' class='btn btn-primary' value='Model'>
+                                        </form>`,
+                    "data": null,
+                    "searchable": false,
+                    "sortable": false,
+                }
+            ],
+        });
 
         $("form[name='model_form']").on('submit', function(){
         console.log("test")

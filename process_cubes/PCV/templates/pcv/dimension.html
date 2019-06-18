@@ -18,7 +18,7 @@
         </div>
             
         <div class="col">
-            <form action="#" method="POST">
+            <form action="/log/{{log.pk}}/cube/{{cube.pk}}/dim/{{dim.pk}}/dice" method="POST">
                 {% csrf_token %}
                 <div class="text-left">
                         <input type="submit" class="btn btn-success rounded-circle" value="Dice" name="dice_" />
