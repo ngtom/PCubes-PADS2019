@@ -5,26 +5,20 @@
         </div>
 
         <div class="col">
-                <h6 class="font-italic"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h6>
+            <h6 class="font-italic"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h6>
         </div>
 
         <div class="col">
-            <form action="/log/{{log.pk}}/cube/{{cube.pk}}/dim/{{dim.pk}}/slice" method="POST">
-                {% csrf_token %}
-                <div class="text-right">
-                        <input type="submit" class="btn btn-success rounded-circle" value="Slice" name="slice_" />
-                </div>
-            </form>
+            <div class="text-right">
+                <a class="btn btn-success btn-rounded-circle" href="slice/{{ dim.pk }}">Slice</a>
+            </div>
         </div>
-            
+
         <div class="col">
-            <form action="#" method="POST">
-                {% csrf_token %}
-                <div class="text-left">
-                        <input type="submit" class="btn btn-success rounded-circle" value="Dice" name="dice_" />
-                </div>
-            </form>
-        </div>  
+            <div class="text-left">
+                <a class="btn btn-success btn-rounded-circle" href="dice/{{ dim.pk }}">Dice</a>
+            </div>
+        </div>
     </div>
 
     <div class="row top-margin">
@@ -33,7 +27,7 @@
         </div>
         <div class="col-10"></div>
     </div>
-    
+
     <div class="row">
         <div class="col-4">
             <div class="list-group" id="attributes_{{ dim.pk }}">
