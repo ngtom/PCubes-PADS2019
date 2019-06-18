@@ -37,7 +37,7 @@
     </tfoot>
 </table>
 
-<button class="btn btn-success" onclick="submit_slice()">Slice</button>
+<button class="btn btn-success" onclick="submit_slice()">Slice!</button>
 
 {% endblock content %}
 
@@ -63,6 +63,7 @@
 
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
+        console.log(title)
         $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
@@ -86,7 +87,7 @@
             }
         ],
         select: {
-            style: 'multi+shift',
+            style: 'single',
         },
         order: [[1, 'asc']],
         // columns: attributes2
@@ -135,10 +136,10 @@
         var selected = $('#log_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
 
-        var data = [];
-        for (var i = 0; i < selected.length; i++) {
-            console.log(selected[i])
-            data.push(JSON.stringify(selected[i].slice(1)))
+        if(selected.length > 0) {
+            data = JSON.stringify(selected[0].slice(1))
+        } else {
+            return false
         }
 
         console.log(data)

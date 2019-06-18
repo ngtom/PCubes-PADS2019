@@ -37,7 +37,7 @@
     </tfoot>
 </table>
 
-<button class="btn btn-success" onclick="">Dice!</button>
+<button class="btn btn-success" onclick="submit_dice()">Dice</button>
 
 {% endblock content %}
 
@@ -63,7 +63,6 @@
 
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
-        console.log(title)
         $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
@@ -87,7 +86,7 @@
             }
         ],
         select: {
-            style: 'single',
+            style: 'multi+shift',
         },
         order: [[1, 'asc']],
         // columns: attributes2

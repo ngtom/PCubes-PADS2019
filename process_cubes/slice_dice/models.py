@@ -17,6 +17,10 @@ class DimensionRestriction(models.Model):
     class Meta:
         abstract = True
 
-class Slice(models.Model):
+class Dice(models.Model):
     dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
     values = models.ArrayModelField(model_container=DimensionRestriction)
+
+class Slice(models.Model):
+    dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
+    value = models.EmbeddedModelField(model_container=DimensionRestriction)

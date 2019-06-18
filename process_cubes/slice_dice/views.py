@@ -3,7 +3,7 @@ import json
 import numbers
 from import_xes.models import EventLog, Attribute, ProcessCube, Dimension
 from django.http import HttpResponse
-from .models import AttributeRestriction, Slice, DimensionRestriction
+from .models import AttributeRestriction, Slice, Dice, DimensionRestriction
 from .forms import DateFilter, NumberFilter, StringFilter
 import datetime
 from cells_list.views import get_dim_values
@@ -64,8 +64,7 @@ def dice_operation(request, log_id, cube_id, dim_id):
     return operation(request, log_id, cube_id, dim_id, 'slice_dice/dice.html')
 
 
-def save_slice(request, log_id, cube_id, dim_id):
-
+def save_dice(request, log_id, cube_id, dim_id):
     dimension = Dimension.objects.get(pk=dim_id)
     values = request.POST.getlist("values[]")
 
@@ -94,7 +93,36 @@ def save_slice(request, log_id, cube_id, dim_id):
         dim_restr = DimensionRestriction(values=attr_restrictions)
         dim_values.append(dim_restr)
 
-    slice_obj = Slice(dimension=dimension, values=dim_values)
+    dice_obj = Dice(dimension=dimension, values=dim_values)
+    dice_obj.save()
+
+    return redirect(createPCV, log_id, cube_id)
+
+
+def save_slice(request, log_id, cube_id, dim_id):
+    dimension = Dimension.objects.get(pk=dim_id)
+    values = request.POST.get("values")
+
+    attributes = {make_name(attr): attr for attr in dimension.attributes.all()}
+
+
+    vs = json.loads(values)
+    value_restr = {}
+    for i, attr in enumerate(dimension.attributes.all()):
+        value_restr[make_name(attr)] =  vs[i]
+
+        
+    
+    attr_restrictions = []
+    for attr in value_restr:
+        attribute = attributes[attr]
+        value = value_restr[attr]
+        restr = AttributeRestriction(attribute=attribute, value=value)
+        attr_restrictions.append(restr)
+
+    dim_restr = DimensionRestriction(values=attr_restrictions)
+
+    slice_obj = Slice(dimension=dimension, value=dim_restr)
     slice_obj.save()
 
     return redirect(createPCV, log_id, cube_id)
