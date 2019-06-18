@@ -16,6 +16,19 @@ def get_dim_values(dimension):
     d_slice = Slice.objects.filter(dimension=dimension)
     d_dice = Dice.objects.filter(dimension=dimension)
 
+    values_lists = [a.values for a in attributes]
+
+    values = list(product(*values_lists))
+    values = [list(v) for v in values]
+
+    return values
+
+def get_restricted_dim_values(dimension):
+    attributes = dimension.attributes.all()
+
+    d_slice = Slice.objects.filter(dimension=dimension)
+    d_dice = Dice.objects.filter(dimension=dimension)
+
     if(d_slice.exists()):
         restrictions = d_slice[0].value.values
         values = {r.attribute.pk: r.value for r in restrictions}
@@ -31,7 +44,6 @@ def get_dim_values(dimension):
     else:
         values_lists = [a.values for a in attributes]
 
-    print(values_lists)
     values = list(product(*values_lists))
     values = [list(v) for v in values]
 
@@ -60,7 +72,7 @@ def get_cells(request, log_id, cube_id):
     cube = ProcessCube.objects.get(pk=cube_id)
     dimensions = Dimension.objects.filter(cube=cube)
 
-    dim_values_list = [get_dim_values(dim) for dim in dimensions]
+    dim_values_list = [get_restricted_dim_values(dim) for dim in dimensions]
 
     value_combinations = list(product(*dim_values_list))
     value_combinations = [list(chain.from_iterable(vs))
