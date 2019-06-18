@@ -43,8 +43,6 @@ class Dimension(models.Model):
     cube = models.ForeignKey(to=ProcessCube, on_delete=models.CASCADE, related_name="dimensions")
     attributes = models.ArrayReferenceField(to=Attribute)
 
-    num_elements = 0
-
     def get_num_elements(self):
         num = 1
         for attr in self.attributes.all():

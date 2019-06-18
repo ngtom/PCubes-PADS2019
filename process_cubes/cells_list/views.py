@@ -1,15 +1,26 @@
 from django.shortcuts import render
 from import_xes.models import Attribute, Dimension, ProcessCube, EventLog
+from dimension_editor.models import DateHierarchy, NumericalHierarchy
 from itertools import product, chain
 from slice_dice.models import Slice, Dice
-from dimension_editor.models import DateHierarchy, NumericalHierarchy
 from bson.json_util import dumps
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import json
+from pymongo import MongoClient
+from process_cubes.settings import DATABASES
 from datetime import datetime
 import math
 
-# Create your views here.
+
+##
+from pm4py.objects import log as log_lib
+from pm4py.algo.discovery.alpha import factory as alpha_miner
+from pm4py.visualization.petrinet import factory as pn_vis_factory
+from pm4py.algo.discovery.inductive import factory as inductive_miner
+from pm4py.visualization.process_tree import factory as pt_vis_factory
+from pm4py.algo.discovery.heuristics import factory as heuristics_miner
+from pm4py.visualization.heuristics_net import factory as hn_vis_factory
+#
 
 
 def get_dim_values(dimension):
@@ -178,6 +189,10 @@ def model(request, log_id, cube_id):
 
         return datetime.strptime(value, time_format)
 
+
+    algo = request.POST.get("algorithm")
+    print(algo)
+
     values_ = {}
 
     # Convert to attribute id to name like it is in the events.
@@ -212,4 +227,72 @@ def model(request, log_id, cube_id):
     values_['log'] = log_id
     values = values_
 
-    return JsonResponse(values, safe=False)
+    client = MongoClient(host=DATABASES['default']['HOST'])
+    db = client[DATABASES['default']['NAME']]
+    trace_collection = db['traces']
+    event_collection = db['events']
+
+    events = event_collection.find(values)
+    events = list(events)
+
+    pm_events = []
+    traces = {str(e['trace:_id']): log_lib.log.Trace() for e in events}
+
+    for event in events:
+        trace = trace_collection.find_one({"_id": event['trace:_id']})
+
+        t = traces[str(event['trace:_id'])]
+        del event['_id']
+        del event['trace:_id']
+
+        e = log_lib.log.Event(event)
+        t.append(e)
+
+    log = log_lib.log.EventLog()
+    for trace in traces:
+        log.append(traces[trace])
+
+    parameters = {"format": "svg"}
+
+    if(algo == "alpha"):
+        net, initial_marking, final_marking = alpha_miner.apply(log)
+        gviz = pn_vis_factory.apply(
+            net, initial_marking, final_marking, parameters=parameters)
+        pn_vis_factory.save(gviz, "alpha.svg")
+    elif(algo == "inductive"):
+        mine_tree = request.POST.get("mine_tree")
+        print(mine_tree)
+        if(mine_tree == 'true'):
+            tree = inductive_miner.apply_tree(log)
+            gviz = pt_vis_factory.apply(tree, parameters=parameters)
+            pt_vis_factory.save(gviz, "alpha.svg")
+        else:
+            net, initial_marking, final_marking = inductive_miner.apply(log)
+            gviz = pn_vis_factory.apply(
+                net, initial_marking, final_marking, parameters=parameters)
+            pn_vis_factory.save(gviz, "alpha.svg")
+    elif(algo == "heuristic"):
+
+        dependency_thresh = float(request.POST.get("dependency_thresh"))
+        and_measure_thresh = float(request.POST.get("and_measure_thresh"))
+        min_act_count = float(request.POST.get("min_act_count"))
+        min_dfg_occurrences = float(request.POST.get("min_dfg_occurrences"))
+        dfg_pre_cleaning_noise_thresh = float(request.POST.get("dfg_pre_cleaning_noise_thresh"))
+
+        h_params = {'dependency_thresh': dependency_thresh,
+                    'and_measure_thresh': and_measure_thresh,
+                    'min_act_count': min_act_count,
+                    'min_dfg_occurrences': min_dfg_occurrences,
+                    'dfg_pre_cleaning_noise_thresh': dfg_pre_cleaning_noise_thresh,
+                    }
+        
+        print(h_params)
+
+        heu_net = heuristics_miner.apply_heu(
+            log, parameters=h_params)
+        gviz = hn_vis_factory.apply(heu_net, parameters=parameters)
+        hn_vis_factory.save(gviz, "alpha.svg")
+
+    svg = open("alpha.svg", "rb")
+
+    return HttpResponse(svg.read(), content_type="image/svg+xml")
