@@ -22,7 +22,9 @@ class DimensionRestriction(models.Model):
 class Dice(models.Model):
     dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
     values = models.ArrayModelField(model_container=DimensionRestriction)
+    objects = models.DjongoManager()
 
 class Slice(models.Model):
     dimension = models.ForeignKey(to=Dimension, on_delete=models.CASCADE)
     value = models.EmbeddedModelField(model_container=DimensionRestriction)
+    objects = models.DjongoManager()

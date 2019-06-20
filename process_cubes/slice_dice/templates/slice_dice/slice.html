@@ -64,7 +64,11 @@
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
         console.log(title)
-        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+        $(this).html('<form>' + 
+            '<div class="form-group">'+
+            '<label for="' + title +'_input">Search ' + title + '</label>' + 
+            '<input type="text" id="'+title + '_input"class="form-control" placeholder="type value" />'+
+            '</div></form>');
     });
 
     var table = $('#log_table').DataTable({
