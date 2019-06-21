@@ -7,12 +7,14 @@
       <h1>Slice Dimension: {{ dimension.name }}</h1>
     </div>
     <div class="col-sm" id="existing_slice">
+        {% if slice %}
+        <h1><span class="badge badge-secondary">Editing existing Slice</span></h1>
+        {% endif %}
         {% if dice %}
-        <h1><span class="badge badge-secondary">Existing Dice will get overriden</span></h1>
+        <h1><span class="badge badge-warning">Existing Dice will get overriden</span></h1>
         {% endif %}
     </div>
         
-    </div>
     <div class="col-1 text-right">
         <button class="btn btn-success btn-lg btn-block" onclick="submit_slice()">Slice</button>
     </div>
@@ -84,13 +86,7 @@
         });
     }
 
-    function checkForExistingDice(){
-        if(slice.length!= 0){
-            $('#existing_slice').html("<h1><span class=\"badge badge-secondary\">Editing existing Slice</span></h1>");
-        }            
-    }
 
-    checkForExistingDice();
 
 
     $('.collapse').on("show.bs.collapse", function (event) {

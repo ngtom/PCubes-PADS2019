@@ -1,4 +1,8 @@
-{% extends 'base.html' %} {% load humanize %} {% block content %}
+{% extends 'base.html' %} {% load humanize %} 
+{% load crispy_forms_tags %}
+
+
+{% block content %}
 <div class="container">
   <h1 class="display-4">Process Cube View</h1>
   <p class="lead">
@@ -18,12 +22,12 @@
 
 
   {% for dim in dimensions %}
-  {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices %}
+  {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices dices=dices %}
   {% endfor %}
 
 </div>
 
-{% endblock %}
+{% endblock content %}
 
 
 {% block custom_javascript %}
