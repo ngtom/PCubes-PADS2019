@@ -57,15 +57,13 @@ def operation(request, log_id, cube_id, dim_id, page):
             json_dice.append(restr)
 
     json_slice = []
+
     if Slice.objects.filter(dimension = dim).exists():
-        slice_ = Slice.objects.filter(dimension = dim)[0]
-        dim_res = slice_.value
-        restr = []
-        for attr_res in dim_res.values:
-            restr.append(attr_res.value)
+        sli = Slice.objects.filter(dimension = dim)[0]
+        for attr_res in sli.value.values:
+            json_slice.append(attr_res.value)
 
-        json_slice = restr
-
+        
     return render(request, page, {
         'logs': logs,
         'log': log,
@@ -89,6 +87,7 @@ def dice_operation(request, log_id, cube_id, dim_id):
 def save_dice(request, log_id, cube_id, dim_id):
 
     dim = Dimension.objects.get(pk=dim_id)
+    
     if Dice.objects.filter(dimension = dim).exists():
        Dice.objects.filter(dimension = dim).delete()
 
@@ -131,6 +130,13 @@ def save_dice(request, log_id, cube_id, dim_id):
 
 def save_slice(request, log_id, cube_id, dim_id):
     dimension = Dimension.objects.get(pk=dim_id)
+
+    if Dice.objects.filter(dimension = dimension).exists():
+       Dice.objects.filter(dimension = dimension).delete()
+
+    if Slice.objects.filter(dimension= dimension).exists():
+       Slice.objects.filter(dimension = dimension).delete()
+
 
     if Dice.objects.filter(dimension = dimension).exists():
        Dice.objects.filter(dimension = dimension).delete()
