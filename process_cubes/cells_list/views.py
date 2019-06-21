@@ -107,6 +107,7 @@ def get_restricted_dim_values(dimension):
                 except DateHierarchy.DoesNotExist:
                     step = 1
 
+            step = int(step)
             orig_values = sorted(attribute.values)
             range_values = []
 
