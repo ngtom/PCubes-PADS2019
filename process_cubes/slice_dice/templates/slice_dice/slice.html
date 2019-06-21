@@ -7,6 +7,10 @@
       <h1>Slice Dimension: {{ dimension.name }}</h1>
     </div>
     <div class="col-sm" id="existing_slice">
+        {% if dice %}
+        <h1><span class="badge badge-secondary">Existing Dice will get overriden</span></h1>
+        {% endif %}
+    </div>
         
     </div>
     <div class="col-1 text-right">
@@ -202,6 +206,7 @@
             success: function (json) {
                 console.log("success slicing"); // another sanity check
                 $.notify("Saved name!", { autoHideDelay: 1000, className: "success" })
+                window.location.href = "/log/{{log.pk}}/cube/{{cube.pk}}/pcv";
             },
 
             // handle a non-successful response
