@@ -1,47 +1,26 @@
 {% extends 'base.html' %} {% load humanize %} {% block content %}
-<div class="row general-margin">
-  <div class="col-sm">
-        <h2 class="">Process Cube View</h3>
-        <div class="row">
-            <div class="col-md-12">
-                <h4 class="">Dimensions:</h4>
-            </div>
-        </div>
-  </div>
+<div class="container">
+  <h1 class="display-4">Process Cube View</h1>
+  <p class="lead">
+  <div class="btn-toolbar" role="toolbar" aria-label"Toolbar with buttons">
+    <div class="btn-group mr-2" role="group">
+    <a class="btn btn-secondary w-100" href="cells-table">Show cells table</a>
+    </div>
+    <div class="btn-group mr-2" role="group">
+    <a class="btn btn-secondary w-100" href="dimensions">Edit Dimension Page</a>
+    </div>
+    <div class="btn-group" role="group">
+    <a class="btn btn-secondary w-100" href="#">Cells: {{ cells|intcomma }}</a>
+    </div>
+  </div>  
+  </p>
+
+
+
+  {% for dim in dimensions %}
+  {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices %}
+  {% endfor %}
   
-  <div class="col-sm">
-    <div class="row justify-content-center">
-      <div class="text-center">
-        <a class="btn btn-primary w-100" href="cells-table">Show cells table</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm">
-    <div class="row justify-content-center">
-      <div class="text-center">
-        <a class="btn btn-primary w-100" href="dimensions">Edit Dimension Page</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm">
-      <div class="row justify-content-end">
-            <h6 class=""><span class="badge badge-pill badge-primary">Cells total: <span id="num_cells">{{ cells|intcomma }}</span>
-            </span></h6>
-      </div>
-  </div>
-
-</div>
-
-<div class="row">
-  <div class="col-md-12">
-      <div class="list-group" id="dimensions_table">
-          {% for dim in dimensions %}
-          {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
-          {% endfor %}
-      </div>
-  </div>
 </div>
 
 {% endblock %}

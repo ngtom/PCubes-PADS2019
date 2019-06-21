@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 import json
+from django.core.serializers.json import DjangoJSONEncoder
 import numbers
 from import_xes.models import EventLog, Attribute, ProcessCube, Dimension
 from django.http import HttpResponse
@@ -24,11 +25,11 @@ def operation(request, log_id, cube_id, dim_id, page):
     cube = ProcessCube.objects.get(pk=cube_id)
     cubes = ProcessCube.objects.filter(log=log)
     attributes = Attribute.objects.filter(log=log)
-    dimension = Dimension.objects.get(pk=dim_id)
+    dim = Dimension.objects.get(pk=dim_id)
 
     filters = []
 
-    for attr in dimension.attributes.all():
+    for attr in dim.attributes.all():
         if(isinstance(attr.values[0], (int, float))):
             filter_form = NumberFilter()
         elif(isinstance(attr.values[0], datetime.datetime)):
@@ -39,23 +40,35 @@ def operation(request, log_id, cube_id, dim_id, page):
         filter_form.attribute = attr
         filters.append(filter_form)
 
-    attr_names = [make_name(a) for a in dimension.attributes.all()]
+    attr_names = [make_name(a) for a in dim.attributes.all()]
 
-    dim_values = get_dim_values(dimension)
+    dim_values = get_dim_values(dim)
     dim_values = [[str(v) for v in values] for values in dim_values]
 
     dim_values = [[''] + row for row in dim_values]
 
+    json_dice = []
+
+    if Dice.objects.filter(dimension = dim).exists():
+        dice = Dice.objects.filter(dimension = dim)[0]
+        for dim_res in dice.values:
+            restr = []
+            for attr_res in dim_res.values:
+                restr.append(attr_res.value)
+            json_dice.append(restr)
+
+        
     return render(request, page, {
         'logs': logs,
         'log': log,
         'cube': cube,
         'cubes': cubes,
         'attributes': attributes,
-        'dimension': dimension,
+        'dimension': dim,
         'attr_names': attr_names,
         'filters': filters,
-        'dim_values': dim_values})
+        'dim_values': dim_values,
+        'dice': json_dice})
 
 def slice_operation(request, log_id, cube_id, dim_id):
     return operation(request, log_id, cube_id, dim_id, 'slice_dice/slice.html')
@@ -65,6 +78,11 @@ def dice_operation(request, log_id, cube_id, dim_id):
 
 
 def save_dice(request, log_id, cube_id, dim_id):
+
+    dim = Dimension.objects.get(pk=dim_id)
+    if Dice.objects.filter(dimension = dim).exists():
+       Dice.objects.filter(dimension = dim).delete()
+
     dimension = Dimension.objects.get(pk=dim_id)
     values = request.POST.getlist("values[]")
 
