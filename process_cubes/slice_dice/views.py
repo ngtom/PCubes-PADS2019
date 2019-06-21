@@ -44,7 +44,6 @@ def operation(request, log_id, cube_id, dim_id, page):
 
     dim_values = get_dim_values(dim)
     dim_values = [[str(v) for v in values] for values in dim_values]
-
     dim_values = [[''] + row for row in dim_values]
 
     json_dice = []
@@ -57,7 +56,16 @@ def operation(request, log_id, cube_id, dim_id, page):
                 restr.append(attr_res.value)
             json_dice.append(restr)
 
-        
+    json_slice = []
+    if Slice.objects.filter(dimension = dim).exists():
+        slice_ = Slice.objects.filter(dimension = dim)[0]
+        dim_res = slice_.value
+        restr = []
+        for attr_res in dim_res.values:
+            restr.append(attr_res.value)
+
+        json_slice = restr
+
     return render(request, page, {
         'logs': logs,
         'log': log,
@@ -68,7 +76,8 @@ def operation(request, log_id, cube_id, dim_id, page):
         'attr_names': attr_names,
         'filters': filters,
         'dim_values': dim_values,
-        'dice': json_dice})
+        'dice': json_dice,
+        'slice': json_slice})
 
 def slice_operation(request, log_id, cube_id, dim_id):
     return operation(request, log_id, cube_id, dim_id, 'slice_dice/slice.html')
@@ -82,6 +91,9 @@ def save_dice(request, log_id, cube_id, dim_id):
     dim = Dimension.objects.get(pk=dim_id)
     if Dice.objects.filter(dimension = dim).exists():
        Dice.objects.filter(dimension = dim).delete()
+
+    if Slice.objects.filter(dimension=dim).exists():
+       Slice.objects.filter(dimension = dim).delete()
 
     dimension = Dimension.objects.get(pk=dim_id)
     values = request.POST.getlist("values[]")
@@ -119,8 +131,14 @@ def save_dice(request, log_id, cube_id, dim_id):
 
 def save_slice(request, log_id, cube_id, dim_id):
     dimension = Dimension.objects.get(pk=dim_id)
-    values = request.POST.get("values")
 
+    if Dice.objects.filter(dimension = dimension).exists():
+       Dice.objects.filter(dimension = dimension).delete()
+
+    if Slice.objects.filter(dimension= dimension).exists():
+       Slice.objects.filter(dimension = dimension).delete()
+
+    values = request.POST.get("values")
     attributes = {make_name(attr): attr for attr in dimension.attributes.all()}
 
 

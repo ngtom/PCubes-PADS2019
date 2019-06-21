@@ -4,7 +4,11 @@
 
 <h1>Slice Dimension: {{ dimension.name }}</h1>
 
-
+<div class="col-sm" id="existing_dice">
+    {% if dice or slice %}
+    <h3><span class="badge badge-secondary">Existing slice/dice will be overridden</span></h3>
+    {% endif %}
+</div>
 
 
 <table id="log_table" class="table display nowrap table-striped" style="width: 100%">
@@ -64,10 +68,10 @@
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
         console.log(title)
-        $(this).html('<form>' + 
-            '<div class="form-group">'+
-            '<label for="' + title +'_input">Search ' + title + '</label>' + 
-            '<input type="text" id="'+title + '_input"class="form-control" placeholder="type value" />'+
+        $(this).html('<form>' +
+            '<div class="form-group">' +
+            '<label for="' + title + '_input">Search ' + title + '</label>' +
+            '<input type="text" id="' + title + '_input"class="form-control" placeholder="type value" />' +
             '</div></form>');
     });
 
@@ -140,7 +144,7 @@
         var selected = $('#log_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
 
-        if(selected.length > 0) {
+        if (selected.length > 0) {
             data = JSON.stringify(selected[0].slice(1))
         } else {
             return false
@@ -157,6 +161,7 @@
             success: function (json) {
                 console.log("success slicing"); // another sanity check
                 $.notify("Saved name!", { autoHideDelay: 1000, className: "success" })
+                window.location.href = "/log/{{log.pk}}/cube/{{cube.pk}}/pcv";
             },
 
             // handle a non-successful response

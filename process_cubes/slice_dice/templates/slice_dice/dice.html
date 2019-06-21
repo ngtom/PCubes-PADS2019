@@ -2,19 +2,14 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+<h1>Dice Dimension: {{ dimension.name }}</h1>
 
+<div class="col-sm" id="existing_dice">
+    {% if dice or slice %}
+    <h3><span class="badge badge-secondary">Existing slice/dice will be overridden</span></h3>
+    {% endif %}
+</div>
 
- <div class="row">
-    <div class="col-sm">
-      <h1>Dice Dimension: {{ dimension.name }}</h1>
-    </div>
-    <div class="col-sm" id="existing_dice">
-        
-    </div>
-    <div class="col-1 text-right">
-        <button class="btn btn-success btn-lg btn-block" onclick="submit_dice()">Dice</button>
-    </div>
-  </div>
 
 <table id="log_table" class="table display nowrap table-striped" style="width: 100%">
     <thead class="thead-dark">
@@ -46,50 +41,13 @@
     </tfoot>
 </table>
 
+<button class="btn btn-success" onclick="submit_dice()">Dice</button>
 
 {% endblock content %}
 
 
 {% block custom_javascript %}
 <script>
-    var dice = {{dice | safe }}
-    console.log(dice);
-
-    function arraysEqual(a, b) {
-        if (a === b) return true;
-        if (a == null || b == null) return false;
-        if (a.length != b.length) return false;
-        for (var i = 0; i < a.length; ++i) {
-            if (a[i] !== b[i]) return false;
-        }
-        return true;
-    }
-
-    function selectRows(){
-        var table = $('#log_table').DataTable();
-        table.rows().every(function(rowIdx, tableLoop, rowLoop){
-        var change = false;
-        var data = this.data().slice(1, this.data().length);
-        dice.forEach(function(item, index){
-            if(arraysEqual(item, data)){
-                change = true;
-            }
-        });
-        
-        if(change){
-            table.rows( ':eq('+rowIdx+ ')' ).select()
-        }
-        });
-    }
-
-    function checkForExistingDice(){
-        if(dice.length!= 0){
-            $('#existing_dice').html("<h3><span class=\"badge badge-secondary\">Dice loaded</span></h3>");
-        }
-    }
-
-    checkForExistingDice();
-
     $('.collapse').on("show.bs.collapse", function (event) {
         $('#log_table').DataTable().columns.adjust()
         console.log("show")
@@ -100,21 +58,16 @@
         console.log("show")
     });
 
-
     $(document).ready(function () {
 
         var attributes2 = [
             { data: "Select" }, {% for attr in attr_names %} { "data": "{{ attr}}" }, {% endfor %}];
 
-         var dim_values = {{ dim_values| safe }}
+    var dim_values = {{ dim_values| safe }}
 
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
-        $(this).html('<form>' + 
-            '<div class="form-group">'+
-            '<label for="' + title +'_input">Search ' + title + '</label>' + 
-            '<input type="text" id="'+title + '_input"class="form-control" placeholder="type value" />'+
-            '</div></form>');
+        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
     var table = $('#log_table').DataTable({
@@ -155,43 +108,7 @@
             }
         });
     });
-
-    table.on('deselect', function(e, dt, type, index){
-        var removedRow = table.rows( ':eq('+index+ ')'  ).data().toArray()[0];
-        removedRow = removedRow.slice(1,removedRow.length);
-        console.log("removing",removedRow);
-        dice = dice.filter(item => !arraysEqual(item,removedRow));
-    });
-
-    table.on('select', function(e, dt, type, index){
-        var addedRow = table.rows( ':eq('+index+ ')'  ).data().toArray()[0];
-        addedRow = addedRow.slice(1,addedRow.length);
-        console.log("adding",addedRow);
-        
-        var exists = false;
-        dice.forEach(function(item, index){
-            if(arraysEqual(item,addedRow)){
-                exists = true;
-            }
-        });
-        if (!exists){
-            dice.push(addedRow);
-        }
-
-    });
     
-
-    
-    table.on('draw', function(){
-        selectRows();
-    })
-
-
-
-
-    selectRows();
-   
-   
 
     });
 
@@ -219,11 +136,13 @@
     }
 
     function submit_dice() {
+        var selected = $('#log_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
 
         var data = [];
-        for (var i = 0; i < dice.length; i++) {
-            data.push(JSON.stringify(dice[i]));
+        for (var i = 0; i < selected.length; i++) {
+            console.log(selected[i])
+            data.push(JSON.stringify(selected[i].slice(1)))
         }
 
         console.log(data)
@@ -237,6 +156,7 @@
             success: function (json) {
                 console.log("success dicing"); // another sanity check
                 $.notify("Saved name!", { autoHideDelay: 1000, className: "success" })
+                window.location.href = "/log/{{log.pk}}/cube/{{cube.pk}}/pcv";
             },
 
             // handle a non-successful response

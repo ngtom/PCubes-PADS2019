@@ -51,7 +51,7 @@
                 {% csrf_token %}
                 <input type="hidden" value="{{ attribute.pk }}" name="dim_id">
                 <div class="row">
-                    <div class="col">
+                    <div class="col" style="min-width: 80px;">
                         {% if attribute.date_hierarchy %}
                         <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
                             placeholder="{{ attribute.date_hierarchy.all.0.step_size }}" name="step_input">
@@ -60,7 +60,7 @@
                             placeholder="0" name="step_input">
                         {% endif %}
                     </div>
-                    Days
+                    Elements
                     <div class="col">
                         <button class="btn btn-success">Save</button>
                     </div>
