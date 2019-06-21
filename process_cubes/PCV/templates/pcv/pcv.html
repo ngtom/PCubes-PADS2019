@@ -12,14 +12,15 @@
     <div class="btn-group" role="group">
     <a class="btn btn-secondary w-100" href="#">Cells: {{ cells|intcomma }}</a>
     </div>
-  </div>  </p>
+  </div>  
+  </p>
 
 
 
-{% for dim in dimensions %}
-{% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices %}
-{% endfor %}
+  {% for dim in dimensions %}
+  {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices %}
+  {% endfor %}
+  
 </div>
-
 
 {% endblock %}
