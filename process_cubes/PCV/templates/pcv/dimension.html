@@ -1,3 +1,5 @@
+
+<!---
 <div class="list-group-item general-margin" id="dim_{{ dim.pk }}">
     <div class="row">
         <div class="col">
@@ -37,4 +39,29 @@
             </div>
         </div>
     </div>
+</div> 
+!-->
+
+<div class="card border-primary mb-3" id="dim_{{ dim.pk }}">
+<div class="card-body">
+    <div class="row">
+    <div class="col">
+    <h4 class="card-title">Name: {{dim.name}}</h5>
+    <h6 class="card-subtitle mb-2 text-muted"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h6>
+    <p class="card-text">Attributes</p>
+    </div>
+    </div>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% for attribute in dim.attributes.all %}
+    {% include "pcv/attribute.html" with dim=dim attribute=attribute %}
+    {% endfor %}
+  </ul> 
+<div class="card-body">
+<a href="/log/{{log.pk}}/cube/{{cube.pk}}/slice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Slice</a>
+<a href="/log/{{log.pk}}/cube/{{cube.pk}}/dice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Dice</a>
+
+  </div>
+  
 </div>
+<br>

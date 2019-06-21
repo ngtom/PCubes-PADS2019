@@ -1,4 +1,4 @@
-<div class="list-group-item general-margin" id="attr_{{ attribute.pk }}">
+<li class="list-group-item" id="attr_{{ attribute.pk }}">
     <div class="row">
         <div class="col-10">
             <div class="row">
@@ -13,7 +13,10 @@
             </div>
         </div>
         <div class="col-2">
-                <button class="btn btn-info float-right" onclick='alert("{{attribute.values}}")'>view</button>
+            <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#values_{{ attribute.pk }}">
+                        Show values
+            </button>
+            {% include "pcv/attribute_values.html" with attribute=attribute %}
         </div>
     </div>
-</div>
+</li>
