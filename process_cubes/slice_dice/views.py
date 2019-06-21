@@ -130,7 +130,7 @@ def save_dice(request, log_id, cube_id, dim_id):
 
 
 def save_slice(request, log_id, cube_id, dim_id):
-    dim = Dimension.objects.get(pk=dim_id)
+    dimension = Dimension.objects.get(pk=dim_id)
 
     if Dice.objects.filter(dimension = dimension).exists():
        Dice.objects.filter(dimension = dimension).delete()
@@ -138,7 +138,6 @@ def save_slice(request, log_id, cube_id, dim_id):
     if Slice.objects.filter(dimension= dimension).exists():
        Slice.objects.filter(dimension = dimension).delete()
 
-    dimension = Dimension.objects.get(pk=dim_id)
     values = request.POST.get("values")
 
     attributes = {make_name(attr): attr for attr in dimension.attributes.all()}
