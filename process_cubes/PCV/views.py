@@ -30,6 +30,7 @@ def createPCV(request, log_id, cube_id):
     used_attributes = [attr for dim in dimensions for attr in dim.attributes.all()]
     free_attributes = [attr for attr in attributes if attr not in used_attributes]
 
+
     logs = EventLog.objects.all()
 
     return render(request, 'pcv/pcv.html',
