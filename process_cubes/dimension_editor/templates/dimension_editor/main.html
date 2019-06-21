@@ -39,7 +39,7 @@
     <div class="col-md-4">
         <div class="row">
             <div class="col-md-12">
-                <h4 class="">Number of cells: <span id="num_cells">{{ cube.get_num_cells|intcomma }}</span></h4>
+                <h4 class="">Number of cells: <span id="num_cells">{{ cells|intcomma }}</span></h4>
             </div>
         </div>
         <div class="row">
@@ -103,6 +103,7 @@
 
         $('#log_table_row').on("shown.bs.collapse", function (e) {
             $('#log_table').DataTable().columns.adjust();
+            console.log("asd")
         });
     });
 
@@ -110,6 +111,7 @@
 
 
     function delete_dimension(dim_id) {
+        console.log("delete_dim " + dim_id);
 
         $.ajax({
             url: "remove_dimension", // the endpoint
@@ -141,6 +143,7 @@
             // handle a successful response
             success: function (data) {
                 let dim_item = data
+                console.log(data)
                 $("#dimensions_table")
                     .append(dim_item).children(':last')
                     .hide()
@@ -157,7 +160,7 @@
 
     function add_attribute(button, attr_id) {
         dim_id = $(button).parent().attr("dimension");
-
+        console.log(dim_id)
         $.ajax({
             url: "add_attribute", // the endpoint
             type: "POST", // http method
@@ -246,37 +249,7 @@
         })
     };
 
-    function save_step(dim_id, attr_id, dtype) {
-        event.preventDefault();
 
-        var step = $('#step_input_' + dim_id + "_" + attr_id).val()
-
-        console.log(step)
-
-        $.ajax({
-            url: "save_step", // the endpoint
-            type: "POST", // http method
-            data: { dim_id: dim_id, attr_id: attr_id, step: step, dtype: dtype}, // data sent with the post request
-
-            // handle a successful response
-            success: function (data) {
-                console.log("success savng step " + step); // another sanity check
-
-                $(`#num_elements_${dim_id}`).html(data['num_elements'])
-                $(`#num_cells`).html(data['cells']);
-
-                $.notify("Saved step!", { autoHideDelay: 1000, className: "success" })
-            },
-
-            // handle a non-successful response
-            error: function (xhr, errmsg, err) {
-                console.log("failed");
-                $.notify("Failed to save step :(", { autoHideDelay: 1000, className: "error" })
-            }
-        })
-
-        return false;
-    }
 
     $('.input[name="dim_name_input"').keypress(function (e) {
         if (e.which == 13) {

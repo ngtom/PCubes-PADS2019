@@ -96,63 +96,6 @@
 </table>
 {% endif %}
 
-
-<form>
-
-    <div class="form-group">
-        <h3><label for="exampleFormControlSelect1">Algorithm</label></h3>
-        <select class="form-control" id="algo_select" onchange="onSelect(this)">
-            <option value="alpha">Alpha Miner</option>
-            <option value="inductive">Inductive Miner</option>
-            <option value="heuristic">Heuristic Miner</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <h3><label for="exampleFormControlTextarea1">Parameters</label></h3>
-
-        <div class="form-check" id="ind_mineTree" style="display: none">
-            <input class="form-check-input" type="checkbox" value="" id="mineTreeCheckbox">
-            <label class="form-check-label" for="mineTreeCheckbox">
-                Mine process tree
-            </label>
-        </div>
-
-        <div class="form-group" id="heuristic_param">
-            <form>
-                <label class="form-check-label" for="dependency_thresh">
-                    dependency_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="dependency_thresh" value='0.5'>
-
-                <label class="form-check-label" for="and_measure_thresh">
-                    and_measure_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="and_measure_thresh" value='0.65'>
-
-                <label class="form-check-label" for="min_act_count">
-                    min_act_count
-                </label>
-                <input class="form-control" type="number" name="quantity" step="1" min="0" id="min_act_count" value='1'>
-
-                <label class="form-check-label" for="min_dfg_occurrences">
-                    min_dfg_occurrences
-                </label>
-                <input class="form-control" type="number" name="quantity" step="1" min="0" id="min_dfg_occurrences"
-                    value='1'>
-
-                <label class="form-check-label" for="dfg_pre_cleaning_noise_thresh">
-                    dfg_pre_cleaning_noise_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="dfg_pre_cleaning_noise_thresh" value='0.05'>
-
-            </form>
-        </div>
-    </div>
-</form>
-
 {% endblock content %}
 
 {% block custom_javascript %}
@@ -162,10 +105,11 @@
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
         attribute_ids = $('#cells_table thead tr:eq(1) th input').map(function () { return this.value })
-
+        
         console.log(attribute_ids)
 
         var data = []
+
 
         var dict = {}
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
@@ -186,41 +130,12 @@
             }
             data.push(dict)
         }
-
-
-        console.log(dict)
-
-        // $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
-
         dict['log'] = "{{ log.pk }}"
 
         $(row).append(`<input type="hidden" name="log" value="{{ log.pk }}" /> `)
 
         jsonDict = JSON.stringify(dict)
         $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)
-
-        let algo = $("#algo_select").val()
-        $(row).append(`<input type="hidden" name="algorithm" value='${algo}' /> `)
-
-        if (algo == "inductive") {
-            let tree = $("#mineTreeCheckbox").is(":checked")
-            console.log(tree)
-            $(row).append(`<input type="hidden" name="mine_tree" value='${tree}' /> `)
-        }
-
-        if (algo == "heuristic") {
-            let dependency_thresh = $("#dependency_thresh").val()
-            let and_measure_thresh = $("#and_measure_thresh").val()
-            let min_act_count = $("#min_act_count").val()
-            let min_dfg_occurrences = $("#min_dfg_occurrences").val()
-            let dfg_pre_cleaning_noise_thresh = $("#dfg_pre_cleaning_noise_thresh").val()
-
-            $(row).append(`<input type="hidden" name="dependency_thresh" value='${dependency_thresh}' /> `)
-            $(row).append(`<input type="hidden" name="and_measure_thresh" value='${and_measure_thresh}' /> `)
-            $(row).append(`<input type="hidden" name="min_act_count" value='${min_act_count}' /> `)
-            $(row).append(`<input type="hidden" name="min_dfg_occurrences" value='${min_dfg_occurrences}' /> `)
-            $(row).append(`<input type="hidden" name="dfg_pre_cleaning_noise_thresh" value='${dfg_pre_cleaning_noise_thresh}' /> `)
-        }
 
         return true
     };
@@ -275,29 +190,7 @@
                 ],
             });
         }
-
-        checkShowParameters($("#algo_select").val())
     });
-
-    function onSelect(that) {
-        selected = that.value
-        checkShowParameters(selected)
-    }
-
-    function checkShowParameters(selected) {
-        console.log(selected)
-        if (selected == "inductive") {
-            $("#ind_mineTree").show()
-        } else {
-            $("#ind_mineTree").hide()
-        }
-
-        if (selected == "heuristic") {
-            $("#heuristic_param").show()
-        } else {
-            $("#heuristic_param").hide()
-        }
-    }
 
 </script>
 

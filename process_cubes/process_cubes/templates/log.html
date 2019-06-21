@@ -25,11 +25,11 @@
         </div>
     </div>
     <div class="card-body">
-        {% if cube.dimensions.all %}
+        {% if cube.dimension_set.all %}
         <h5 class="card-title">Dimensions:</h5>
 
         <div class="accordion" id="accordion_dims">
-            {% for dim in cube.dimensions.all %}
+            {% for dim in cube.dimension_set.all %}
             <div class="card">
                 <div class="card-header" id="headingOne">
                     <h2 class="mb-0">
