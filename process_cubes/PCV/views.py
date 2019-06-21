@@ -40,7 +40,6 @@ def createPCV(request, log_id, cube_id):
                       'log': log,
                       'dimensions': dimensions,
                       'attributes': attributes,
-                      'cells':cells,
                       'free_attributes': free_attributes,
                       'slices': slices
                   })
