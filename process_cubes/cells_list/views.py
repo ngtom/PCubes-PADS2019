@@ -255,23 +255,26 @@ def model(request, log_id, cube_id):
 
     parameters = {"format": "svg"}
 
+    event_log = EventLog.objects.get(pk=log_id)
+    filename = str(event_log.pk) + algo + ".svg"
+
     if(algo == "alpha"):
         net, initial_marking, final_marking = alpha_miner.apply(log)
         gviz = pn_vis_factory.apply(
             net, initial_marking, final_marking, parameters=parameters)
-        pn_vis_factory.save(gviz, "alpha.svg")
+        pn_vis_factory.save(gviz, filename)
     elif(algo == "inductive"):
         mine_tree = request.POST.get("mine_tree")
         print(mine_tree)
         if(mine_tree == 'true'):
             tree = inductive_miner.apply_tree(log)
             gviz = pt_vis_factory.apply(tree, parameters=parameters)
-            pt_vis_factory.save(gviz, "alpha.svg")
+            pt_vis_factory.save(gviz, filename)
         else:
             net, initial_marking, final_marking = inductive_miner.apply(log)
             gviz = pn_vis_factory.apply(
                 net, initial_marking, final_marking, parameters=parameters)
-            pn_vis_factory.save(gviz, "alpha.svg")
+            pn_vis_factory.save(gviz, filename)
     elif(algo == "heuristic"):
 
         dependency_thresh = float(request.POST.get("dependency_thresh"))
@@ -292,8 +295,9 @@ def model(request, log_id, cube_id):
         heu_net = heuristics_miner.apply_heu(
             log, parameters=h_params)
         gviz = hn_vis_factory.apply(heu_net, parameters=parameters)
-        hn_vis_factory.save(gviz, "alpha.svg")
+        hn_vis_factory.save(gviz, filename)
 
-    svg = open("alpha.svg", "rb")
+    svg = open(filename, "rb")
 
+    # TODO: delete file when it's not required anymore
     return HttpResponse(svg.read(), content_type="image/svg+xml")
