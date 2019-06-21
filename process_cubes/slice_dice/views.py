@@ -57,6 +57,13 @@ def operation(request, log_id, cube_id, dim_id, page):
                 restr.append(attr_res.value)
             json_dice.append(restr)
 
+    json_slice = []
+
+    if Slice.objects.filter(dimension = dim).exists():
+        sli = Slice.objects.filter(dimension = dim)[0]
+        for attr_res in sli.value.values:
+            json_slice.append(attr_res.value)
+
         
     return render(request, page, {
         'logs': logs,
@@ -68,7 +75,8 @@ def operation(request, log_id, cube_id, dim_id, page):
         'attr_names': attr_names,
         'filters': filters,
         'dim_values': dim_values,
-        'dice': json_dice})
+        'dice': json_dice,
+        'slice': json_slice})
 
 def slice_operation(request, log_id, cube_id, dim_id):
     return operation(request, log_id, cube_id, dim_id, 'slice_dice/slice.html')
@@ -118,6 +126,10 @@ def save_dice(request, log_id, cube_id, dim_id):
 
 
 def save_slice(request, log_id, cube_id, dim_id):
+    dim = Dimension.objects.get(pk=dim_id)
+    if Slice.objects.filter(dimension = dim).exists():
+       Slice.objects.filter(dimension = dim).delete()
+
     dimension = Dimension.objects.get(pk=dim_id)
     values = request.POST.get("values")
 
