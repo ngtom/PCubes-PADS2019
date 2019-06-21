@@ -11,7 +11,7 @@
         </div>
 
         <div class="col-4">
-            <h5>Number of elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h5>
+            <h5>Number of elements: <span id="num_elements_{{ dim.pk }}">{{ dim.get_num_elements }}</span></h5>
         </div>
         <div class="col-3"></div>
         <div class="col justify-content-end ">
@@ -40,7 +40,7 @@
         <div class="col-10"></div>
     </div>
     <div class="row">
-        <div class="col-6">
+        <div class="col">
             <div class="list-group" id="attributes_{{ dim.pk }}">
                 {% for attribute in dim.attributes.all %}
                 {% include "dimension_editor/attribute.html" with dim=dim attribute=attribute %}

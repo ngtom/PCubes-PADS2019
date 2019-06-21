@@ -49,6 +49,7 @@
     </tfoot>
 </table>
 
+<button class="btn btn-success" onclick="submit_dice()">Dice</button>
 
 {% endblock content %}
 
@@ -99,21 +100,16 @@
         console.log("show")
     });
 
-
     $(document).ready(function () {
 
         var attributes2 = [
             { data: "Select" }, {% for attr in attr_names %} { "data": "{{ attr}}" }, {% endfor %}];
 
-         var dim_values = {{ dim_values| safe }}
+    var dim_values = {{ dim_values| safe }}
 
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
-        $(this).html('<form>' + 
-            '<div class="form-group">'+
-            '<label for="' + title +'_input">Search ' + title + '</label>' + 
-            '<input type="text" id="'+title + '_input"class="form-control" placeholder="type value" />'+
-            '</div></form>');
+        $(this).html('<input type="text" placeholder="Search ' + title + '" />');
     });
 
     var table = $('#log_table').DataTable({
@@ -182,6 +178,7 @@
     }
 
     function submit_dice() {
+        var selected = $('#log_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
         var table = $('#log_table').DataTable();
         var selected = table.rows({selected : true}).data().toArray();

@@ -5,7 +5,7 @@
     <div class="row">
     <div class="col">
     <h4 class="card-title">Name: {{dim.name}}</h5>
-    <h6 class="card-subtitle mb-2 text-muted"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.num_elements}}</span></h6>
+    <h6 class="card-subtitle mb-2 text-muted"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.get_num_elements}}</span></h6>
     <p class="card-text">Attributes</p>
     </div>
     <div class="col-3" id="existing_ops_{{dim.pk}}">

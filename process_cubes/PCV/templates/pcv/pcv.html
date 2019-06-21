@@ -6,17 +6,17 @@
 <div class="container">
   <h1 class="display-4">Process Cube View</h1>
   <p class="lead">
-  <div class="btn-toolbar" role="toolbar" aria-label"Toolbar with buttons">
-    <div class="btn-group mr-2" role="group">
-    <a class="btn btn-secondary w-100" href="cells-table">Show cells table</a>
+    <div class="btn-toolbar" role="toolbar" aria-label"Toolbar with buttons">
+      <div class="btn-group mr-2" role="group">
+        <a class="btn btn-secondary w-100" href="cells-table">Show cells table</a>
+      </div>
+      <div class="btn-group mr-2" role="group">
+        <a class="btn btn-secondary w-100" href="dimensions">Edit Dimension Page</a>
+      </div>
+      <div class="btn-group" role="group">
+        <a class="btn btn-secondary w-100" href="#">Cells: {{ cube.get_num_cells|intcomma }}</a>
+      </div>
     </div>
-    <div class="btn-group mr-2" role="group">
-    <a class="btn btn-secondary w-100" href="dimensions">Edit Dimension Page</a>
-    </div>
-    <div class="btn-group" role="group">
-    <a class="btn btn-secondary w-100" href="#">Cells: {{ cells|intcomma }}</a>
-    </div>
-  </div>  
   </p>
 
 
@@ -24,9 +24,32 @@
   {% for dim in dimensions %}
   {% include "pcv/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes slices=slices dices=dices %}
   {% endfor %}
-  
+
 </div>
 
 {% endblock content %}
 
 
+{% block custom_javascript %}
+<script>
+
+  $(document).ready(function () {
+
+    var v_tables = $('table[name="values"]').DataTable({
+      scrollY: '50vh',
+      scrollCollapse: true,
+      paging: false
+    });
+
+    $(".modal").on("shown.bs.modal", function (e) {
+      $('table[name="values"]').DataTable().columns.adjust()
+    });
+
+    $('#log_table_row').on("shown.bs.collapse", function (e) {
+      $('#log_table').DataTable().columns.adjust();
+    });
+  });
+
+
+</script>
+{% endblock custom_javascript %}

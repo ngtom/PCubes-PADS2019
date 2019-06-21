@@ -1,6 +1,6 @@
 <div class="list-group-item general-margin" id="attr_{{ attribute.pk }}">
     <div class="row">
-        <div class="col-10">
+        <div class="col-6">
             <div class="row">
                 <div class="col">
                     <h5>{{ attribute.parent }}:{{ attribute.name }}</h5>
@@ -15,10 +15,64 @@
                 </div>
             </div>
         </div>
-        <div class="col-2">
+
+        {% if attribute.dtype == "float" or attribute.dtype == "int" %}
+
+        <div class="col-3">
+            <h6>Step</h6>
+            <form id="step_{{ attribute.pk }}" name="save_step_form" action="save_step_name" method="POST"
+                onsubmit="save_step({{ dim.pk }}, {{attribute.pk}}, 'float')">
+                {% csrf_token %}
+                <input type="hidden" value="{{ attribute.pk }}" name="dim_id">
+                <div class="row">
+                    <div class="col">
+                        {% if attribute.num_hierarchy %}
+                        <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
+                            placeholder="{{ attribute.num_hierarchy.all.0.step_size }}" name="step_input">
+                        {% else %}
+                        <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
+                            placeholder="0" name="step_input">
+                        {% endif %}
+
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if attribute.dtype == "date" %}
+        <div class="col-3">
+            <h6>Step</h6>
+            <form id="step_{{ attribute.pk }}" name="save_step_form" action="save_step_name" method="POST"
+                onsubmit="save_step({{ dim.pk }}, {{attribute.pk}}, 'date')">
+                {% csrf_token %}
+                <input type="hidden" value="{{ attribute.pk }}" name="dim_id">
+                <div class="row">
+                    <div class="col" style="min-width: 80px;">
+                        {% if attribute.date_hierarchy %}
+                        <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
+                            placeholder="{{ attribute.date_hierarchy.all.0.step_size }}" name="step_input">
+                        {% else %}
+                        <input id="step_input_{{ dim.pk }}_{{ attribute.pk }}" class="form-control" type="text"
+                            placeholder="0" name="step_input">
+                        {% endif %}
+                    </div>
+                    Elements
+                    <div class="col">
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+
+        <div class="col">
             <button class="btn btn-danger float-right"
                 onclick='rem_attribute({{ dim.pk }}, {{ attribute.pk }});'>X</button>
         </div>
     </div>
-
 </div>

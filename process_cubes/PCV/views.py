@@ -38,13 +38,6 @@ def createPCV(request, log_id, cube_id):
     used_attributes = [attr for dim in dimensions for attr in dim.attributes.all()]
     free_attributes = [attr for attr in attributes if attr not in used_attributes]
 
-    for dim in dimensions:
-        if(len(dim.attributes.all()) != 0):
-            dim.num_elements = reduce(
-                mul, [len(attr.values) for attr in dim.attributes.all()], 1)
-
-    cells = reduce(
-        mul, [dim.num_elements for dim in dimensions if dim.num_elements != 0], 1)
 
     logs = EventLog.objects.all()
 
@@ -56,7 +49,6 @@ def createPCV(request, log_id, cube_id):
                       'log': log,
                       'dimensions': dimensions,
                       'attributes': attributes,
-                      'cells':cells,
                       'free_attributes': free_attributes,
                       'slices': slices,
                       'dices': dices
