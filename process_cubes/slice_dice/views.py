@@ -44,6 +44,7 @@ def operation(request, log_id, cube_id, dim_id, page):
 
     dim_values = get_dim_values(dim)
     dim_values = [[str(v) for v in values] for values in dim_values]
+
     dim_values = [[''] + row for row in dim_values]
 
     json_dice = []
@@ -138,6 +139,7 @@ def save_slice(request, log_id, cube_id, dim_id):
        Slice.objects.filter(dimension = dimension).delete()
 
     values = request.POST.get("values")
+
     attributes = {make_name(attr): attr for attr in dimension.attributes.all()}
 
 
@@ -161,5 +163,4 @@ def save_slice(request, log_id, cube_id, dim_id):
     slice_obj.save()
 
     return redirect(createPCV, log_id, cube_id)
-
 

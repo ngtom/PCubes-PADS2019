@@ -109,10 +109,10 @@
     $('#log_table tfoot th').slice(1).each(function () {
         var title = $(this).text().trim();
         console.log(title)
-        $(this).html('<form>' +
-            '<div class="form-group">' +
-            '<label for="' + title + '_input">Search ' + title + '</label>' +
-            '<input type="text" id="' + title + '_input"class="form-control" placeholder="type value" />' +
+        $(this).html('<form>' + 
+            '<div class="form-group">'+
+            '<label for="' + title +'_input">Search ' + title + '</label>' + 
+            '<input type="text" id="'+title + '_input"class="form-control" placeholder="type value" />'+
             '</div></form>');
     });
 
@@ -185,7 +185,7 @@
         var selected = $('#log_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
 
-        if (selected.length > 0) {
+        if(selected.length > 0) {
             data = JSON.stringify(selected[0].slice(1))
         } else {
             return false
