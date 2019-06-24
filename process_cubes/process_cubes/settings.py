@@ -81,10 +81,13 @@ WSGI_APPLICATION = 'process_cubes.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
+import os
+database_host = os.getenv('PCUBES_DATABASE_URL', "localhost")
+
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'HOST': 'localhost',
+        'HOST': database_host,
         # 'HOST': 'mongodb+srv://pcubes:pcubes2019@cluster0-zxaok.gcp.mongodb.net/test?retryWrites=true',
         'NAME': 'pcubes_v2',
     }

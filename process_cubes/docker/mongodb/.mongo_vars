@@ -1,0 +1,7 @@
+# MongoDB
+# ------------------------------------------------------------------------------
+MONGODB_HOST=localhost
+MONGODB_PORT=27017
+MONGODB_DB=pcubes
+MONGODB_USER=RcoEyFdHGWERZQaIVPhFsAByhPVEHLLA
+MONGODB_PASSWORD=e9dCP9AjYvQSsSE5gfJYqoG4ESd70v9ZKqbCSJz3w5mWRyHlbbBtPLcvMGAnUz2j
