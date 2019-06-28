@@ -1,0 +1,32 @@
+version: '3'
+
+volumes:
+  local_mongodb_data: {}
+  local_mongodb_data_backups: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./docker/django/production/Dockerfile
+    image: pcubes_django
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+    env_file:
+      - ./docker/mongodb/.mongo_vars
+    ports:
+      - "80:8000"
+    command: /start
+
+  mongodb:
+    build:
+      context: .
+      dockerfile: ./docker/mongodb/Dockerfile
+    image: pcubes_mongodb
+    volumes:
+      - local_mongodb_data:/var/lib/mongodb/data
+      - local_mongodb_data_backups:/backups
+    env_file:
+      - ./docker/mongodb/.mongo_vars

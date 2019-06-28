@@ -7,11 +7,11 @@
 
 
 
-if [ -z "${MONGODB_USER}" ]; then
-    base_postgres_image_default_user='mongodb'
-    export MONGODB_USER="${base_postgres_image_default_user}"
+if [ -z "${MONGO_INITDB_ROOT_USERNAME}" ]; then
+    default_user='mongodb'
+    export MONGO_INITDB_ROOT_USERNAME="${default_user}"
 fi
-export PCUBES_DATABASE_URL="mongodb"
+export PCUBES_DATABASE_URL="mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb"
 
 mongodb_ready() {
 python << END
