@@ -48,7 +48,7 @@ def get_dim_values(dimension):
 
         orig_values = sorted(attribute.values)
         range_values = []
-
+        step = int(step)
         num_values = math.ceil(len(orig_values) / step)
         for i in range(num_values):
             lower = orig_values[i * step]
@@ -109,6 +109,7 @@ def get_restricted_dim_values(dimension):
 
             step = int(step)
             orig_values = sorted(attribute.values)
+            print(orig_values)
             range_values = []
 
             num_values = math.ceil(len(orig_values) / step)
@@ -233,6 +234,7 @@ def model(request, log_id, cube_id):
     trace_collection = db['traces']
     event_collection = db['events']
 
+    print(values)
     events = event_collection.find(values)
     events = list(events)
 
