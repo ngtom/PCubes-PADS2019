@@ -48,7 +48,7 @@ def get_dim_values(dimension):
 
         orig_values = sorted(attribute.values)
         range_values = []
-
+        step = int(step)
         num_values = math.ceil(len(orig_values) / step)
         for i in range(num_values):
             lower = orig_values[i * step]
