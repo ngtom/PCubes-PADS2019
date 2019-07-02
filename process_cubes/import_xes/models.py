@@ -36,6 +36,12 @@ class Attribute(models.Model):
     values = models.ListField(null=True)
     dtype = models.CharField(max_length=10)
 
+    # Returns the name that is used in events collection 
+    def get_name(self):
+        if(self.parent == "trace"):
+            return self.parent + ":" + self.name
+        else:
+            return self.name
 
 class Dimension(models.Model):
     name = models.CharField(max_length=255)
@@ -61,7 +67,6 @@ class Dimension(models.Model):
                 else:
                     step = 1
             
-            print(step)
             num_values = len(attr.values)
 
             num = num * math.ceil(num_values / step)
@@ -156,15 +161,7 @@ def import_xes(filename, xes_file):
     t2 = time.time()
     print('time to construct events list: ' + str(t2 - t1))
 
-    # Save events
-    t1 = time.time()
-    event_collection.insert_many(all_events, ordered=False)
-    t2 = time.time()
-    print('time to save events: ' + str(t2 - t1))
-
-    print('#Traces: ' + str(len(all_traces)))
-    print('#Events: ' + str(len(all_events)))
-    # ----------------
+    
 
     # Helper functions to find all possible values of the attributes
     def find_values(attr):
@@ -200,6 +197,9 @@ def import_xes(filename, xes_file):
         elif(type(attr.values[0]) == str):
             if(is_number(attr.values[0])):
                 attr.dtype = "float"
+                for ev in all_events:
+                    ev[attr.get_name()] = float(ev[attr.get_name()])
+                attr.values = list(map(float, attr.values))
             else:
                 attr.dtype = "str"
         elif(type(attr.values[0]) == int):
@@ -215,6 +215,16 @@ def import_xes(filename, xes_file):
     t2 = time.time()
     print('time to get values of attributes: ' + str(t2 - t1))
     # ---------------
+
+    # Save events
+    t1 = time.time()
+    event_collection.insert_many(all_events, ordered=False)
+    t2 = time.time()
+    print('time to save events: ' + str(t2 - t1))
+
+    print('#Traces: ' + str(len(all_traces)))
+    print('#Events: ' + str(len(all_events)))
+    # ----------------
 
     # This method inserts the provided list of objects into the database in an efficient manner
     Attribute.objects.bulk_create(all_attributes)

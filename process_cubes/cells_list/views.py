@@ -79,7 +79,7 @@ def get_restricted_dim_values(dimension):
     if(d_slice.exists()):
         restrictions = d_slice[0].value.values
         values = {r.attribute.pk: r.value for r in restrictions}
-        values_lists = [[values[a.pk]] for a in attributes]
+        values_lists = [[sorted(values[a.pk])] for a in attributes]
     elif(d_dice.exists()):
         restrictions = d_dice[0].values
         values = {a.pk: [] for a in attributes}
@@ -87,7 +87,7 @@ def get_restricted_dim_values(dimension):
             for ar in dr.values:
                 values[ar.attribute.pk].append(ar.value)
 
-        values_lists = [values[a.pk] for a in attributes]
+        values_lists = [sorted(values[a.pk]) for a in attributes]
     else:
         values_lists = []
         for attribute in attributes:
@@ -109,6 +109,7 @@ def get_restricted_dim_values(dimension):
 
             step = int(step)
             orig_values = sorted(attribute.values)
+            print(orig_values)
             range_values = []
 
             num_values = math.ceil(len(orig_values) / step)
@@ -233,6 +234,7 @@ def model(request, log_id, cube_id):
     trace_collection = db['traces']
     event_collection = db['events']
 
+    print(values)
     events = event_collection.find(values)
     events = list(events)
 
