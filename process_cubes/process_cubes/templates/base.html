@@ -114,7 +114,10 @@
 
 
   <!-- JS Cookies -->
-  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> -->
+  {% load static %}
+  <script src="{% static 'process_cubes/js/js.cookie.js' %}"></script>
+
 
   <!-- Notify JS -->
   <script src="https://rawgit.com/notifyjs/notifyjs/master/dist/notify.js"></script>
@@ -137,6 +140,7 @@
       beforeSend: function (xhr, settings) {
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
           xhr.setRequestHeader("X-CSRFToken", csrftoken);
+          console.log("csrf")
         }
       }
     });
