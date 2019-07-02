@@ -109,7 +109,6 @@ def get_restricted_dim_values(dimension):
 
             step = int(step)
             orig_values = sorted(attribute.values)
-            print(orig_values)
             range_values = []
 
             num_values = math.ceil(len(orig_values) / step)
@@ -165,7 +164,7 @@ def get_cells(request, log_id, cube_id):
 
 
 def model(request, log_id, cube_id):
-    values = request.POST.get("values")
+    values = request.GET.get("values")
     if(values == None):
         values = "{}"
     values = json.loads(values)
@@ -192,8 +191,7 @@ def model(request, log_id, cube_id):
         return datetime.strptime(value, time_format)
 
 
-    algo = request.POST.get("algorithm")
-    print(algo)
+    algo = request.GET.get("algorithm")
 
     values_ = {}
 
@@ -234,7 +232,6 @@ def model(request, log_id, cube_id):
     trace_collection = db['traces']
     event_collection = db['events']
 
-    print(values)
     events = event_collection.find(values)
     events = list(events)
 
@@ -266,8 +263,7 @@ def model(request, log_id, cube_id):
             net, initial_marking, final_marking, parameters=parameters)
         pn_vis_factory.save(gviz, filename)
     elif(algo == "inductive"):
-        mine_tree = request.POST.get("mine_tree")
-        print(mine_tree)
+        mine_tree = request.GET.get("mine_tree")
         if(mine_tree == 'true'):
             tree = inductive_miner.apply_tree(log)
             gviz = pt_vis_factory.apply(tree, parameters=parameters)
@@ -279,11 +275,11 @@ def model(request, log_id, cube_id):
             pn_vis_factory.save(gviz, filename)
     elif(algo == "heuristic"):
 
-        dependency_thresh = float(request.POST.get("dependency_thresh"))
-        and_measure_thresh = float(request.POST.get("and_measure_thresh"))
-        min_act_count = float(request.POST.get("min_act_count"))
-        min_dfg_occurrences = float(request.POST.get("min_dfg_occurrences"))
-        dfg_pre_cleaning_noise_thresh = float(request.POST.get("dfg_pre_cleaning_noise_thresh"))
+        dependency_thresh = float(request.GET.get("dependency_thresh"))
+        and_measure_thresh = float(request.GET.get("and_measure_thresh"))
+        min_act_count = float(request.GET.get("min_act_count"))
+        min_dfg_occurrences = float(request.GET.get("min_dfg_occurrences"))
+        dfg_pre_cleaning_noise_thresh = float(request.GET.get("dfg_pre_cleaning_noise_thresh"))
 
         h_params = {'dependency_thresh': dependency_thresh,
                     'and_measure_thresh': and_measure_thresh,
@@ -292,7 +288,6 @@ def model(request, log_id, cube_id):
                     'dfg_pre_cleaning_noise_thresh': dfg_pre_cleaning_noise_thresh,
                     }
         
-        print(h_params)
 
         heu_net = heuristics_miner.apply_heu(
             log, parameters=h_params)
@@ -301,5 +296,11 @@ def model(request, log_id, cube_id):
 
     svg = open(filename, "rb")
 
+    print(values)
+
     # TODO: delete file when it's not required anymore
+    # response = HttpResponse(content_type='image/svg+xml')
+    # response['Content-Disposition'] = 'filename=somefilename.svg'
+    # response.write(svg)
+    # return response
     return HttpResponse(svg.read(), content_type="image/svg+xml")

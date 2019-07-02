@@ -97,82 +97,111 @@
 {% endif %}
 
 
-<form>
+<div class="card border-primary mb-3">
+    <div class="card-body">
+        <form>
 
-    <div class="form-group">
-        <h3><label for="exampleFormControlSelect1">Algorithm</label></h3>
-        <select class="form-control" id="algo_select" onchange="onSelect(this)">
-            <option value="alpha">Alpha Miner</option>
-            <option value="inductive">Inductive Miner</option>
-            <option value="heuristic">Heuristic Miner</option>
-        </select>
+            <div class="form-group">
+                <h3><label for="exampleFormControlSelect1">Algorithm</label></h3>
+                <select class="form-control" id="algo_select" onchange="onSelect(this)">
+                    <option value="alpha">Alpha Miner</option>
+                    <option value="inductive">Inductive Miner</option>
+                    <option value="heuristic">Heuristic Miner</option>
+                </select>
+            </div>
+            <div class="form-group" id="param_group">
+                <h3><label for="exampleFormControlTextarea1">Parameters</label></h3>
+
+                <div class="form-check" id="ind_mineTree" style="display: none">
+                    <input class="form-check-input" type="checkbox" value="" id="mineTreeCheckbox">
+                    <label class="form-check-label" for="mineTreeCheckbox">
+                        Mine process tree
+                    </label>
+                </div>
+
+                <div class="form-group" id="heuristic_param">
+                    <form>
+                        <label class="form-check-label" for="dependency_thresh">
+                            dependency_thresh
+                        </label>
+                        <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
+                            id="dependency_thresh" value='0.5'>
+
+                        <label class="form-check-label" for="and_measure_thresh">
+                            and_measure_thresh
+                        </label>
+                        <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
+                            id="and_measure_thresh" value='0.65'>
+
+                        <label class="form-check-label" for="min_act_count">
+                            min_act_count
+                        </label>
+                        <input class="form-control" type="number" name="quantity" step="1" min="0" id="min_act_count"
+                            value='1'>
+
+                        <label class="form-check-label" for="min_dfg_occurrences">
+                            min_dfg_occurrences
+                        </label>
+                        <input class="form-control" type="number" name="quantity" step="1" min="0"
+                            id="min_dfg_occurrences" value='1'>
+
+                        <label class="form-check-label" for="dfg_pre_cleaning_noise_thresh">
+                            dfg_pre_cleaning_noise_thresh
+                        </label>
+                        <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
+                            id="dfg_pre_cleaning_noise_thresh" value='0.05'>
+
+                    </form>
+                </div>
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <h3><label for="exampleFormControlTextarea1">Parameters</label></h3>
+</div>
+<div class="card border-primary mb-3" id="model-card" style="border-width: 2px">
+    <div class="card-header">
+        <div class="row">
+            <div class="col">
+                <h4 class="card-title">Model</h4>
+                <h6 class="card-subtitle mb-2 text-muted">Algorithm: <span id="current_model_algo"></span></h6>
+                <!-- <h6 class="card-subtitle mb-2 text-muted">Values: <span id="current_model_values"></span></h6> -->
 
-        <div class="form-check" id="ind_mineTree" style="display: none">
-            <input class="form-check-input" type="checkbox" value="" id="mineTreeCheckbox">
-            <label class="form-check-label" for="mineTreeCheckbox">
-                Mine process tree
-            </label>
-        </div>
-
-        <div class="form-group" id="heuristic_param">
-            <form>
-                <label class="form-check-label" for="dependency_thresh">
-                    dependency_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="dependency_thresh" value='0.5'>
-
-                <label class="form-check-label" for="and_measure_thresh">
-                    and_measure_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="and_measure_thresh" value='0.65'>
-
-                <label class="form-check-label" for="min_act_count">
-                    min_act_count
-                </label>
-                <input class="form-control" type="number" name="quantity" step="1" min="0" id="min_act_count" value='1'>
-
-                <label class="form-check-label" for="min_dfg_occurrences">
-                    min_dfg_occurrences
-                </label>
-                <input class="form-control" type="number" name="quantity" step="1" min="0" id="min_dfg_occurrences"
-                    value='1'>
-
-                <label class="form-check-label" for="dfg_pre_cleaning_noise_thresh">
-                    dfg_pre_cleaning_noise_thresh
-                </label>
-                <input class="form-control" type="number" name="quantity" step="0.01" min="0" max="1"
-                    id="dfg_pre_cleaning_noise_thresh" value='0.05'>
-
-            </form>
+            </div>
+            <div class="col">
+                <a id="download_button" href="" class="btn btn-primary float-right" style="display: none"
+                    onclick="download_model()">Download</a>
+            </div>
         </div>
     </div>
-</form>
+    <div class="card-body">
+        <div class="text-center">
+            <container class=" text-center" id="model_svg">
+                <svg></svg>
+            </container>
+        </div>
+    </div>
+</div>
+
 
 {% endblock content %}
 
 {% block custom_javascript %}
 <script>
     function model(event, row) {
-        // event.preventDefault()
+        event.preventDefault()
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
-        attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
-        attribute_ids = $('#cells_table thead tr:eq(1) th input').map(function () { return this.value })
+        var attributes = $('#cells_table thead tr:eq(1)').children().map(function () { return this.innerText })
+        let attribute_ids = $('#cells_table thead tr:eq(1) th input').map(function () { return this.value })
 
-        console.log(attribute_ids)
+        // console.log(attribute_ids)
 
-        var data = []
 
         var dict = {}
+        var value_data = ""
         entries = $(row).closest('tr').children('td').slice(0, -1).map(function () { return this.innerText })
         for (var i = 0; i < attributes.length; i++) {
             dict[attribute_ids[i]] = entries[i]
+            value_data += [attributes[i]] + " = " + entries[i]
         }
-        data.push(dict)
 
         var selected = $('#cells_table').DataTable().rows({ selected: true }).data()
         // console.log(selected)
@@ -184,28 +213,25 @@
             for (var j = 0; j < selected[i].length; j++) {
                 dict[attribute_ids[j]] = selected[i][j]
             }
-            data.push(dict)
         }
-
-
-        console.log(dict)
-
-        // $(row).append(`<input type="hidden" name="${attributes[i]}" value="${entries[i]}" /> `)
 
         dict['log'] = "{{ log.pk }}"
 
         $(row).append(`<input type="hidden" name="log" value="{{ log.pk }}" /> `)
 
-        jsonDict = JSON.stringify(dict)
+        var jsonDict = JSON.stringify(dict)
         $(row).append(`<input type="hidden" name="values" value='${jsonDict}' /> `)
 
-        let algo = $("#algo_select").val()
+        var algo = $("#algo_select").val()
         $(row).append(`<input type="hidden" name="algorithm" value='${algo}' /> `)
+
+        params = { values: jsonDict, algorithm: algo }
 
         if (algo == "inductive") {
             let tree = $("#mineTreeCheckbox").is(":checked")
-            console.log(tree)
+            // console.log(tree)
             $(row).append(`<input type="hidden" name="mine_tree" value='${tree}' /> `)
+            params['mine_tree'] = tree
         }
 
         if (algo == "heuristic") {
@@ -220,10 +246,102 @@
             $(row).append(`<input type="hidden" name="min_act_count" value='${min_act_count}' /> `)
             $(row).append(`<input type="hidden" name="min_dfg_occurrences" value='${min_dfg_occurrences}' /> `)
             $(row).append(`<input type="hidden" name="dfg_pre_cleaning_noise_thresh" value='${dfg_pre_cleaning_noise_thresh}' /> `)
+
+            params['dependency_thresh'] = dependency_thresh
+            params['and_measure_thresh'] = and_measure_thresh
+            params['min_act_count'] = min_act_count
+            params['min_dfg_occurrences'] = min_dfg_occurrences
+            params['dfg_pre_cleaning_noise_thresh'] = dfg_pre_cleaning_noise_thresh
         }
 
-        return true
+
+        $.ajax(
+            {
+                url: "{% url 'model' log.id cube.id %}",
+                dataType: 'html',
+                data: params,
+                type: 'GET',
+                success: function (data) {
+                    $("#model_svg > svg").replaceWith(data);
+
+                    $("#current_model_algo").text(algo);
+                    // $("#current_model_values").text(value_data);
+
+
+                    var svgData = $("svg")[0].outerHTML;
+                    var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+                    var svgUrl = URL.createObjectURL(svgBlob);
+                    var downloadLink = $("#download_button")
+                    downloadLink.attr("href", svgUrl);
+                    filename = "{{ cube.name }}-model-" + algo + ".svg"
+                    downloadLink.attr("download", filename);
+                    downloadLink.show();
+                    downloadLink.click()
+
+                    $('svg').attr("width", "100%")
+
+                    var svgActive = false
+                    let panZoomTiger = svgPanZoom('svg', {
+                        zoomEnabled: false,
+                        controlIconsEnabled: true,
+                        fit: true,
+                        center: true,
+                        // mouseWheelZoomEnabled: false,
+                        customEventsHandler: {
+                            init: function (options) {
+                                this.listeners = {
+                                    click: function () {
+                                        if (svgActive) {
+                                            options.instance.disableZoom()
+                                            svgActive = false
+
+                                            $("#model-card").addClass("border-primary")
+                                            $("#model-card").removeClass("border-success")
+                                        } else {
+                                            options.instance.enableZoom()
+                                            svgActive = true
+
+                                            $("#model-card").removeClass("border-primary")
+                                            $("#model-card").addClass("border-success")
+                                        }
+                                    },
+                                }
+
+                                for (var eventName in this.listeners) {
+                                    options.svgElement.addEventListener(eventName, this.listeners[eventName])
+                                }
+                            }
+                            , destroy: function (options) {
+                                for (var eventName in this.listeners) {
+                                    options.svgElement.removeEventListener(eventName, this.listeners[eventName])
+                                }
+                            }
+                        }
+                    });
+
+                    $('html, body').animate({
+                        scrollTop: $("#model-card").offset().top
+                    }, 500);
+
+
+
+                    // window.zoomTiger = svgPanZoom('#demo-tiger', {
+                    //     zoomEnabled: true,
+                    //     controlIconsEnabled: true,
+                    //     fit: true,
+                    //     center: true,
+                    //     // viewportSelector: document.getElementById('demo-tiger').querySelector('#g4') // this option will make library to misbehave. Viewport should have no transform attribute
+                    // });
+                }
+            });
+
+        // return true
+        return false
     };
+
+    function download_model() {
+
+    }
 
     $(document).ready(function () {
 
@@ -246,10 +364,9 @@
 
         if (n_attr == 1) {
             $('#cells_table > thead > tr:first-child').prepend("<th><i>No Dimensions</i></th>")
-            $('#cells_table > tbody ').append(`<tr>><th>All cells</th><th><form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
-                                            {% csrf_token %}
-                                            <input type='submit' class='btn btn-primary' value='Model'>
-                                        </form></th</tr>`)
+            $('#cells_table > tbody ').append(`<tr>><th>All cells</th><th><button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#model-modal" onclick="model(event, this)">
+                                                                                        Model
+                                                                                    </button></th</tr>`)
             $('#cells_table > tfoot').remove()
         } else {
 
@@ -264,10 +381,9 @@
                 "columnDefs": [
                     {
                         "targets": -1,
-                        "defaultContent": `<form name='model_form' action="model" method="POST" onsubmit="model(event, this)">
-                                            {% csrf_token %}
-                                            <input type='submit' class='btn btn-primary' value='Model'>
-                                        </form>`,
+                        "defaultContent": `<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#model-modal" onclick="model(event, this)">
+                                                                                        Model
+                                                                                    </button>`,
                         "data": null,
                         "searchable": false,
                         "sortable": false,
@@ -288,14 +404,21 @@
         console.log(selected)
         if (selected == "inductive") {
             $("#ind_mineTree").show()
+            $('#param_group').show()
+            console.log("asd")
         } else {
             $("#ind_mineTree").hide()
         }
 
         if (selected == "heuristic") {
             $("#heuristic_param").show()
+            $('#param_group').show()
         } else {
             $("#heuristic_param").hide()
+        }
+
+        if (selected == "alpha") {
+            $('#param_group').hide()
         }
     }
 
