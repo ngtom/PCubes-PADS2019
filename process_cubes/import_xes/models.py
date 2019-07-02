@@ -13,7 +13,6 @@ import math
 
 class EventLog(models.Model):
     name = models.CharField(max_length=255)
-    xes_file = models.FileField(upload_to='documents/')
 
 
 class ProcessCube(models.Model):
@@ -110,7 +109,7 @@ def import_xes(filename, xes_file):
         log_name = filename
 
     # Construct event log object
-    event_log = EventLog(name=log_name, xes_file=xes_file)
+    event_log = EventLog(name=log_name)
     event_log.save()
     log_id = event_log.id
 
@@ -231,5 +230,8 @@ def import_xes(filename, xes_file):
 
     t_end = time.time()
     print('Total: ' + str(t_end - t_start))
+
+    # Delete file, not used anymore
+    os.remove(filename)
 
     return log_id

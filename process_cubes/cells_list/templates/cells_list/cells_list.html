@@ -177,7 +177,13 @@
             <container class=" text-center" id="model_svg">
                 <svg></svg>
             </container>
+
+            <div class="spinner-border" role="status" id="loading_spinner">
+                <span class="sr-only">Loading...</span>
+            </div>
         </div>
+
+
     </div>
 </div>
 
@@ -255,6 +261,8 @@
         }
 
 
+        $('#loading_spinner').show()
+        $('#model_svg').hide()
         $.ajax(
             {
                 url: "{% url 'model' log.id cube.id %}",
@@ -262,6 +270,9 @@
                 data: params,
                 type: 'GET',
                 success: function (data) {
+                    $('#loading_spinner').hide()
+                    $('#model_svg').show()
+                    
                     $("#model_svg > svg").replaceWith(data);
 
                     $("#current_model_algo").text(algo);
@@ -323,15 +334,7 @@
                         scrollTop: $("#model-card").offset().top
                     }, 500);
 
-
-
-                    // window.zoomTiger = svgPanZoom('#demo-tiger', {
-                    //     zoomEnabled: true,
-                    //     controlIconsEnabled: true,
-                    //     fit: true,
-                    //     center: true,
-                    //     // viewportSelector: document.getElementById('demo-tiger').querySelector('#g4') // this option will make library to misbehave. Viewport should have no transform attribute
-                    // });
+                    
                 }
             });
 

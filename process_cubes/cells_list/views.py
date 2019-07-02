@@ -10,7 +10,7 @@ from pymongo import MongoClient
 from process_cubes.settings import DATABASES
 from datetime import datetime
 import math
-
+import os
 
 ##
 from pm4py.objects import log as log_lib
@@ -295,12 +295,10 @@ def model(request, log_id, cube_id):
         hn_vis_factory.save(gviz, filename)
 
     svg = open(filename, "rb")
+    svg_content = svg.read()
+    svg.close()
 
-    print(values)
+    # Tdelete file, it's not required anymore    
+    os.remove(svg.name)
 
-    # TODO: delete file when it's not required anymore
-    # response = HttpResponse(content_type='image/svg+xml')
-    # response['Content-Disposition'] = 'filename=somefilename.svg'
-    # response.write(svg)
-    # return response
-    return HttpResponse(svg.read(), content_type="image/svg+xml")
+    return HttpResponse(svg_content, content_type="image/svg+xml")
