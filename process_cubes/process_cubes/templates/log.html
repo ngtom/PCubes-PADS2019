@@ -4,75 +4,77 @@
 
 {% block content %}
 
-<h1>Process Cubes:</h1>
+<div class="container">
+    <h1 class="display-4">Process Cubes:</h1>
 
 
-{% for cube in cubes %}
-<div class="card mb-3 float" style="max-width: 700px;">
-    <div class="card-header">
-        <div class="row">
-            <div class="col">
-                <a class="btn btn-lg btn-primary card-img-center" href="{{ log.pk }}/cube/{{ cube.pk }}/pcv">
-                    {{ cube.name }}
-                </a>
-            </div>
-            <div class="col">
-                <form action="{{log.pk}}/cube/{{ cube.pk }}/delete" method="POST">
-                    {% csrf_token %}
-                    <button class="btn btn-danger float-right" type="submit">Delete</button>
-                </form>
+
+    {% for cube in cubes %}
+    <div class="card mb-3 float" style="max-width: 700px;">
+        <div class="card-header">
+            <div class="row">
+                <div class="col">
+                    <a class="btn btn-lg btn-primary card-img-center" href="{{ log.pk }}/cube/{{ cube.pk }}/pcv">
+                        {{ cube.name }}
+                    </a>
+                </div>
+                <div class="col">
+                    <form action="{{log.pk}}/cube/{{ cube.pk }}/delete" method="POST">
+                        {% csrf_token %}
+                        <button class="btn btn-danger float-right" type="submit">Delete</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="card-body">
-        {% if cube.dimensions.all %}
-        <h5 class="card-title">Dimensions:</h5>
+        <div class="card-body">
+            {% if cube.dimensions.all %}
+            <h5 class="card-title">Dimensions:</h5>
 
-        <div class="accordion" id="accordion_dims">
-            {% for dim in cube.dimensions.all %}
-            <div class="card">
-                <div class="card-header" id="headingOne">
-                    <h2 class="mb-0">
-                        <button class="btn btn-link" type="button" data-toggle="collapse"
-                            data-target="#collapse_{{ dim.pk }}" aria-expanded="true"
-                            aria-controls="collapse_{{ dim.pk }}">
-                            {{ dim.name }}
-                        </button>
+            <div class="accordion" id="accordion_dims">
+                {% for dim in cube.dimensions.all %}
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                data-target="#collapse_{{ dim.pk }}" aria-expanded="true"
+                                aria-controls="collapse_{{ dim.pk }}">
+                                {{ dim.name }}
+                            </button>
 
-                    </h2>
-                </div>
+                        </h2>
+                    </div>
 
-                <div id="collapse_{{ dim.pk }}" class="collapse" aria-labelledby="headingOne"
-                    data-parent="#accordion_dims">
-                    <div class="card-body">
-                        Attributes:
-                        <ul class="list-group">
-                            {% for attr in dim.attributes.all %}
-                            <li class="list-group-item">{{ attr.name}}</li>
-                            {% endfor %}
-                        </ul>
+                    <div id="collapse_{{ dim.pk }}" class="collapse" aria-labelledby="headingOne"
+                        data-parent="#accordion_dims">
+                        <div class="card-body">
+                            Attributes:
+                            <ul class="list-group">
+                                {% for attr in dim.attributes.all %}
+                                <li class="list-group-item">{{ attr.name}}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
-        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="card mb-3" style="max-width: 700px;">
+        <div class="card-header">
+            <h4>Create New Process Cube</h4>
+        </div>
+        <div class="card-body">
+            <form action="{{log.pk}}/create_cube" method="POST">
+                {% csrf_token %}
+                {{ cube_form|crispy }}
+                <button class="btn btn-success top-margin" type="submit">New Process Cube</button>
+            </form>
+        </div>
     </div>
 </div>
-{% endfor %}
-
-<div class="card mb-3" style="max-width: 700px;">
-    <div class="card-header">
-        Create New Process Cube
-    </div>
-    <div class="card-body">
-        <form action="{{log.pk}}/create_cube" method="POST">
-            {% csrf_token %}
-            {{ cube_form|crispy }}
-            <button class="btn btn-success top-margin" type="submit">New Process Cube</button>
-        </form>
-    </div>
-</div>
-
 
 {% endblock content %}

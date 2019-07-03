@@ -3,30 +3,47 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<a class='btn btn-primary' href="{% url 'upload' %}">Upload new event log</a>
+<div class="container">
+  <h1 class="display-4">Process Cubes Webservice</h1>
 
-<h2>Imported Event Logs:</h2>
+  <div class="row">
+    <div class="col">
+      <h2>Imported Event Logs:</h2>
+    </div>
+    <div class="col">
+      <a class='btn btn-primary float-right' href="{% url 'upload' %}">Upload new event log</a>
+    </div>
+  </div>
 
-<div class="row">
-  <div class="col-md-12">
-    <div class="list-group">
-      {% for log in logs %}
-      <a class="list-group-item list-group-item-action clearfix" href="log/{{ log.pk }}">
-        <div class="row">
-          <div class="col">
-            {{ log.name }}
+
+
+
+
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="list-group">
+        {% for log in logs %}
+        <a class="list-group-item list-group-item-action clearfix" href="log/{{ log.pk }}">
+          <div class="row">
+            <div class="col">
+              {{ log.name }}
+            </div>
+            <div class="col">
+              <form action="log/{{log.pk}}/delete" method="POST">
+                {% csrf_token %}
+                <button class="btn btn-danger float-right" type="submit">Delete</button>
+              </form>
+            </div>
           </div>
-          <div class="col">
-            <form action="log/{{log.pk}}/delete" method="POST">
-              {% csrf_token %}
-              <button class="btn btn-danger float-right" type="submit">Delete</button>
-            </form>
-          </div>
-        </div>
-      </a>
-      {% endfor %}
+        </a>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
+
+
+
 
 {% endblock %}
