@@ -65,3 +65,8 @@ def get_attrs(request, log_id):
     attributes = [{'data': attr(a)} for a in attributes]
 
     return JsonResponse(attributes, safe=False)
+
+def get_attr_values(request, log_id, attr_id):
+    log = EventLog.objects.get(pk=log_id)
+    attr = Attribute.objects.get(pk=attr_id)
+    return JsonResponse([[v] for v in attr.values], safe=False)

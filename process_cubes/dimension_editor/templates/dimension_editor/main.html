@@ -91,18 +91,36 @@
             }
         });
 
-        var v_tables = $('table[name="values"]').DataTable({
-            scrollY: '50vh',
-            scrollCollapse: true,
-            paging: false
-        });
+        var initialized = {}
+        $(".modal").on("show.bs.modal", function (e) {
+            attr_id = ($(e.target).attr("attr_id"))
 
-        $(".modal").on("shown.bs.modal", function (e) {
-            $('table[name="values"]').DataTable().columns.adjust()
-        });
 
-        $('#log_table_row').on("shown.bs.collapse", function (e) {
-            $('#log_table').DataTable().columns.adjust();
+            if (!initialized[attr_id]) {
+                var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
+
+                let url = "{% url 'get-attr-values' log_id=log.id attr_id=1234 %}".replace(/1234/, attr_id)
+                $(v_table).DataTable({
+                    scrollY: "50vh",
+                    scrollCollapse: true,
+                    scroller: true,
+                    // paging: false,
+                    processing: true,
+                    deferRender: true,
+                    pageLength: 1000,
+                    ajax: {
+                        'url': url,
+                        'dataSrc': ""
+                    }
+                })
+
+                initialized[attr_id] = true
+            }
+
+            $(".modal").on("shown.bs.modal", function (e) {
+                $('table[name="values"]').DataTable().columns.adjust()
+            });
+
         });
     });
 
@@ -175,7 +193,7 @@
                 $(`#num_elements_${dim_id}`).html(data['num_elements']);
                 $(`#num_cells`).html(data['cells']);
 
-                
+
                 //Initialize table
                 $(element).find(".modal").on("shown.bs.modal", function (e) {
                     $('table[name="values"]').DataTable().columns.adjust()
@@ -256,7 +274,7 @@
         $.ajax({
             url: "save_step", // the endpoint
             type: "POST", // http method
-            data: { dim_id: dim_id, attr_id: attr_id, step: step, dtype: dtype}, // data sent with the post request
+            data: { dim_id: dim_id, attr_id: attr_id, step: step, dtype: dtype }, // data sent with the post request
 
             // handle a successful response
             success: function (data) {
