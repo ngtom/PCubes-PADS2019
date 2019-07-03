@@ -227,7 +227,7 @@ def model(request, log_id, cube_id):
 
     values_['log'] = log_id
     values = values_
-    
+
     client = MongoClient(host=DATABASES['default']['HOST'])
     db = client[DATABASES['default']['NAME']]
     trace_collection = db['traces']
@@ -242,15 +242,14 @@ def model(request, log_id, cube_id):
     traces = groupby(all_events, key=lambda e: e['trace:_id'])
     t2 = time()
     print("Time to get traces: {}".format(t2 - t1))
-    
+
     t1 = time()
     traces = [log_lib.log.Trace(g) for k, g in traces]
     t2 = time()
     print("Time to make list: {}".format(t2 - t1))
-    
 
     # log_list = [log_lib.log.Trace([log_lib.log.Event(t_e) for t_e in all_events if t_e['trace:_id'] == db_trace['_id']]) for db_trace in db_traces]
-    
+
     t1 = time()
     log = log_lib.log.EventLog(traces)
     t2 = time()
@@ -262,7 +261,6 @@ def model(request, log_id, cube_id):
 
     #     log.append(pm4py_trace)
     #     print(len(log))
-
 
     # pm_events = []
     # traces = {str(e['trace:_id']): log_lib.log.Trace() for e in events}
@@ -276,8 +274,6 @@ def model(request, log_id, cube_id):
 
     #     e = log_lib.log.Event(event)
     #     t.append(e)
-
-
 
     # log.append(traces.items())
     # for trace in traces:
@@ -321,10 +317,9 @@ def model(request, log_id, cube_id):
                     'dfg_pre_cleaning_noise_thresh': dfg_pre_cleaning_noise_thresh,
                     }
 
-        heu_net = heuristics_miner.apply_heu(
-            log, parameters=h_params)
-        gviz = hn_vis_factory.apply(heu_net, parameters=parameters)
-        hn_vis_factory.save(gviz, filename)
+        net, im, fm = heuristics_miner.apply(log, parameters=h_params)
+        gviz = pn_vis_factory.apply(net, im, fm, parameters=parameters)
+        pn_vis_factory.save(gviz, filename)
 
     t2 = time()
     print("Time pm4py: {}".format(t2 - t1))
