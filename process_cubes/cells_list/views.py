@@ -11,6 +11,8 @@ from process_cubes.settings import DATABASES
 from datetime import datetime
 import math
 import os
+from time import time
+from itertools import groupby
 
 ##
 from pm4py.objects import log as log_lib
@@ -168,7 +170,7 @@ def model(request, log_id, cube_id):
     if(values == None):
         values = "{}"
     values = json.loads(values)
-    
+
     def convert(value, dtype):
         if(dtype == 'float'):
             return float(value)
@@ -189,7 +191,6 @@ def model(request, log_id, cube_id):
             time_format = time_format[:-3]
 
         return datetime.strptime(value, time_format)
-
 
     algo = request.GET.get("algorithm")
 
@@ -226,37 +227,68 @@ def model(request, log_id, cube_id):
 
     values_['log'] = log_id
     values = values_
-
+    
     client = MongoClient(host=DATABASES['default']['HOST'])
     db = client[DATABASES['default']['NAME']]
     trace_collection = db['traces']
     event_collection = db['events']
 
-    events = event_collection.find(values)
-    events = list(events)
+    t1 = time()
+    all_events = event_collection.find(values)
+    t2 = time()
+    print("Time to get events: {}".format(t2 - t1))
 
-    pm_events = []
-    traces = {str(e['trace:_id']): log_lib.log.Trace() for e in events}
+    t1 = time()
+    traces = groupby(all_events, key=lambda e: e['trace:_id'])
+    t2 = time()
+    print("Time to get traces: {}".format(t2 - t1))
+    
+    t1 = time()
+    traces = [log_lib.log.Trace(g) for k, g in traces]
+    t2 = time()
+    print("Time to make list: {}".format(t2 - t1))
+    
 
-    for event in events:
-        trace = trace_collection.find_one({"_id": event['trace:_id']})
+    # log_list = [log_lib.log.Trace([log_lib.log.Event(t_e) for t_e in all_events if t_e['trace:_id'] == db_trace['_id']]) for db_trace in db_traces]
+    
+    t1 = time()
+    log = log_lib.log.EventLog(traces)
+    t2 = time()
+    print("Time to make event log: {}".format(t2 - t1))
 
-        t = traces[str(event['trace:_id'])]
-        del event['_id']
-        del event['trace:_id']
+    # for db_trace in db_traces:
 
-        e = log_lib.log.Event(event)
-        t.append(e)
+    #     pm4py_trace = log_lib.log.Trace([log_lib.log.Event(t_e) for t_e in all_events if t_e['trace:_id'] == db_trace['_id']])
 
-    log = log_lib.log.EventLog()
-    for trace in traces:
-        log.append(traces[trace])
+    #     log.append(pm4py_trace)
+    #     print(len(log))
+
+
+    # pm_events = []
+    # traces = {str(e['trace:_id']): log_lib.log.Trace() for e in events}
+
+    # for event in events:
+    #     trace = trace_collection.find_one({"_id": event['trace:_id']})
+
+    #     t = traces[str(event['trace:_id'])]
+    #     del event['_id']
+    #     del event['trace:_id']
+
+    #     e = log_lib.log.Event(event)
+    #     t.append(e)
+
+
+
+    # log.append(traces.items())
+    # for trace in traces:
+    #     log.append(traces[trace])
 
     parameters = {"format": "svg"}
 
     event_log = EventLog.objects.get(pk=log_id)
     filename = str(event_log.pk) + algo + ".svg"
 
+    t1 = time()
     if(algo == "alpha"):
         net, initial_marking, final_marking = alpha_miner.apply(log)
         gviz = pn_vis_factory.apply(
@@ -279,7 +311,8 @@ def model(request, log_id, cube_id):
         and_measure_thresh = float(request.GET.get("and_measure_thresh"))
         min_act_count = float(request.GET.get("min_act_count"))
         min_dfg_occurrences = float(request.GET.get("min_dfg_occurrences"))
-        dfg_pre_cleaning_noise_thresh = float(request.GET.get("dfg_pre_cleaning_noise_thresh"))
+        dfg_pre_cleaning_noise_thresh = float(
+            request.GET.get("dfg_pre_cleaning_noise_thresh"))
 
         h_params = {'dependency_thresh': dependency_thresh,
                     'and_measure_thresh': and_measure_thresh,
@@ -287,18 +320,20 @@ def model(request, log_id, cube_id):
                     'min_dfg_occurrences': min_dfg_occurrences,
                     'dfg_pre_cleaning_noise_thresh': dfg_pre_cleaning_noise_thresh,
                     }
-        
 
         heu_net = heuristics_miner.apply_heu(
             log, parameters=h_params)
         gviz = hn_vis_factory.apply(heu_net, parameters=parameters)
         hn_vis_factory.save(gviz, filename)
 
+    t2 = time()
+    print("Time pm4py: {}".format(t2 - t1))
+
     svg = open(filename, "rb")
     svg_content = svg.read()
     svg.close()
 
-    # Tdelete file, it's not required anymore    
+    # Tdelete file, it's not required anymore
     os.remove(svg.name)
 
     return HttpResponse(svg_content, content_type="image/svg+xml")

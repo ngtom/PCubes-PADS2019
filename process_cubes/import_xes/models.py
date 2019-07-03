@@ -197,7 +197,8 @@ def import_xes(filename, xes_file):
             if(is_number(attr.values[0])):
                 attr.dtype = "float"
                 for ev in all_events:
-                    ev[attr.get_name()] = float(ev[attr.get_name()])
+                    if(attr.get_name() in ev):
+                        ev[attr.get_name()] = float(ev[attr.get_name()])
                 attr.values = list(map(float, attr.values))
             else:
                 attr.dtype = "str"
