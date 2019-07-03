@@ -42,7 +42,7 @@
 
       if (!initialized[attr_id]) {
         var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
-
+        console.log(v_table)
         let url = "{% url 'get-attr-values' log_id=log.id attr_id=1234 %}".replace(/1234/, attr_id)
         $(v_table).DataTable({
           scrollY: "50vh",
@@ -52,6 +52,7 @@
           processing: true,
           deferRender: true,
           pageLength: 1000,
+          lengthMenu: [[10, 25, 50, 1000, -1], [10, 25, 50, 1000, "All"]],
           ajax: {
             'url': url,
             'dataSrc': ""
@@ -62,7 +63,9 @@
       }
 
       $(".modal").on("shown.bs.modal", function (e) {
-        $('table[name="values"]').DataTable().columns.adjust()
+        attr_id = ($(e.target).attr("attr_id"))
+        var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
+        $(v_table).DataTable().columns.adjust()
       });
 
     });

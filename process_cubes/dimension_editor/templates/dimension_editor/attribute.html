@@ -1,16 +1,18 @@
-<div class="list-group-item general-margin" id="attr_{{ attribute.pk }}">
+<div class="list-group-item" id="attr_{{ attribute.pk }}">
     <div class="row">
-        <div class="col-6">
+        <div class="col-5">
             <div class="row">
                 <div class="col">
                     <h5>{{ attribute.parent }}:{{ attribute.name }}</h5>
                 </div>
             </div>
             <div class="row">
-                <div class="col-3">
-                    elements: {{ attribute.values|length }}
+                <div class="col">
+                    <h6 class="card-subtitle mb-2 text-muted"># elements: {{ attribute.values|length }}</h6>
                 </div>
-                <div class="col-3">
+            </div>
+            <div class="row">
+                <div class="col">
                     {% include "dimension_editor/attribute_values.html" with attribute=attribute %}
                 </div>
             </div>
@@ -60,7 +62,6 @@
                             placeholder="0" name="step_input">
                         {% endif %}
                     </div>
-                    Elements
                     <div class="col">
                         <button class="btn btn-success">Save</button>
                     </div>

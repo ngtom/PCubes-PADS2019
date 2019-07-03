@@ -1,16 +1,17 @@
 {% load crispy_forms_tags %}
 
 <div class="card border-primary mb-3" id="dim_{{ dim.pk }}">
-<div class="card-body">
+  <div class="card-body">
     <div class="row">
-    <div class="col">
-    <h4 class="card-title">Name: {{dim.name}}</h5>
-    <h6 class="card-subtitle mb-2 text-muted"># elements: <span id="num_elements_{{ dim.pk }}">{{ dim.get_num_elements}}</span></h6>
-    <p class="card-text">Attributes</p>
-    </div>
-    <div class="col-3" id="existing_ops_{{dim.pk}}">
+      <div class="col">
+        <h5 class="card-title">Name: {{dim.name}}</h5>
+        <h6 class="card-subtitle mb-2 text-muted"># elements: <span
+            id="num_elements_{{ dim.pk }}">{{ dim.get_num_elements}}</span></h6>
+        <p class="card-text">Attributes</p>
+      </div>
+      <div class="col-3" id="existing_ops_{{dim.pk}}">
 
-    </div>
+      </div>
 
     </div>
   </div>
@@ -18,40 +19,40 @@
     {% for attribute in dim.attributes.all %}
     {% include "pcv/attribute.html" with dim=dim attribute=attribute %}
     {% endfor %}
-  </ul> 
-<div class="card-body">
-<a href="/log/{{log.pk}}/cube/{{cube.pk}}/slice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Slice</a>
-<a href="/log/{{log.pk}}/cube/{{cube.pk}}/dice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Dice</a>
+  </ul>
+  <div class="card-body">
+    <a href="/log/{{log.pk}}/cube/{{cube.pk}}/slice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Slice</a>
+    <a href="/log/{{log.pk}}/cube/{{cube.pk}}/dice/{{dim.pk}}/" class="btn btn-primary btn-lg btn-block">Dice</a>
 
   </div>
-  
+
 </div>
 <br>
 
 {% block custom_javascript %}
 <script>
-    var dimID = {{dim.pk}};
-    console.log(dimID);
+  var dimID = {{ dim.pk }};
+  console.log(dimID);
 
   var slices = {{ slices | safe}}
   var dices = {{ dices | safe }}
 
   console.log(dices, slices);
 
-  var slice_html = "<h3><span class=\"badge badge-secondary\">Editing existing Slice</span></h3>";    
-  var dice_html = "<h3><span class=\"badge badge-secondary\">Editing existing Dice</span></h3>";  
+  var slice_html = "<h3><span class=\"badge badge-secondary\">Editing existing Slice</span></h3>";
+  var dice_html = "<h3><span class=\"badge badge-secondary\">Editing existing Dice</span></h3>";
 
   var toAdd = "";
 
-  if(dices[dimID] === true){
+  if (dices[dimID] === true) {
     toAdd += dice_html;
   }
- 
-  if(slices[dimID] === true){
-      toAdd += slice_html;
+
+  if (slices[dimID] === true) {
+    toAdd += slice_html;
   }
 
-  document.getElementById("existing_ops_" + dimID).innerHTML = toAdd;   
-  
+  document.getElementById("existing_ops_" + dimID).innerHTML = toAdd;
+
 </script>
 {% endblock custom_javascript %}

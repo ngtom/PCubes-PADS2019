@@ -4,67 +4,76 @@
 {% block content %}
 
 
-<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#log_table_row" aria-expanded="false"
-    aria-controls="log_table_row" id="show_hide_table">
-    Show/Hide Log
-</button>
+<div class="container">
+    <h1 class="display-4">Dimension Editor</h1>
 
-<div class="collapse" id="log_table_row">
-    <table id="log_table" class="table display nowrap table-striped" style="width: 100%">
-        <thead class="thead-dark">
-            <tr>
-                {% for attr in attributes %}
-                <th>
-                    {{attr.parent }}: {{ attr.name }}
-                </th>
-                {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
+    <p class="lead">
+        <div class="btn-toolbar" role="toolbar" aria-label"Toolbar with buttons">
+            <div class="btn-group mr-2" role="group">
+                <button class="btn btn-secondary w-100" type="button" data-toggle="collapse"
+                    data-target="#log_table_row" aria-expanded="false" aria-controls="log_table_row"
+                    id="show_hide_table">
+                    Show/Hide Log
+                </button>
+            </div>
+            <div class="btn-group mr-2" role="group">
+                <button class="btn btn-secondary w-100" onclick="add_dimension()">Add Dimension</button>
+            </div>
+            <div class="btn-group mr-2" role="group">
+                <a class="btn btn-secondary w-100" href="#">Cells: <span
+                        id="num_cells">{{ cube.get_num_cells|intcomma }}</span></a>
+            </div>
 
-        </tbody>
-    </table>
-</div>
-
-
-<div class="row general-margin">
-    <div class="col-md-4">
-        <h1 class="">Process Cube</h1>
-        <div class="row">
-            <div class="col-md-12">
-                <h2 class="">Dimensions:</h2>
+            <div class="btn-group" role="group">
+                <a class="btn btn-success w-100 float-right" href="pcv">Done</a>
             </div>
         </div>
+    </p>
+
+    <div class="collapse" id="log_table_row">
+        <table id="log_table" class="table display nowrap table-striped" style="width: 100%">
+            <thead class="thead-dark">
+                <tr>
+                    {% for attr in attributes %}
+                    <th>
+                        {{attr.parent }}: {{ attr.name }}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+
+            <tfoot class="thead-dark">
+                <tr>
+                    {% for attr in attributes %}
+                    <th>
+                        {{attr.parent }}: {{ attr.name }}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </tfoot>
+        </table>
     </div>
-    <div class="col-md-4">
-        <div class="row">
-            <div class="col-md-12">
-                <h4 class="">Number of cells: <span id="num_cells">{{ cube.get_num_cells|intcomma }}</span></h4>
-            </div>
-        </div>
-        <div class="row">
-            <button class="btn btn-success" onclick="add_dimension()">Add Dimension</button>
-        </div>
+
+    <div id="dimensions_table">
+        {% for dim in dimensions %}
+        {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
+        {% endfor %}
     </div>
-    <div class="col-md-4">
-        <a class="btn btn-primary w-100" href="pcv">Done</a>
-    </div>
+
+
+
 </div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="list-group" id="dimensions_table">
-            {% for dim in dimensions %}
-            {% include "dimension_editor/dimension.html" with dim=dim attributes=attributes free_attributes=free_attributes %}
-            {% endfor %}
-        </div>
-    </div>
-</div>
+
+
+
 
 {% endblock %}
 
 {% block custom_javascript %}
 <script>
+
+    var initialized = {}
 
     $(document).ready(function () {
 
@@ -88,17 +97,32 @@
                     "columns": attributes,
                 });
 
+                // Apply the search
+                table.columns().every(function () {
+                    var that = this;
+
+                    $('input', this.footer()).on('keyup change', function () {
+                        if (that.search() !== this.value) {
+                            that
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                });
+
+                $('#log_table_row').on("shown.bs.collapse", function (e) {
+                    console.log("asd")
+                    $("#log_table").DataTable().columns.adjust()
+
+                });
             }
         });
 
-        var initialized = {}
         $(".modal").on("show.bs.modal", function (e) {
             attr_id = ($(e.target).attr("attr_id"))
-
+            var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
 
             if (!initialized[attr_id]) {
-                var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
-
                 let url = "{% url 'get-attr-values' log_id=log.id attr_id=1234 %}".replace(/1234/, attr_id)
                 $(v_table).DataTable({
                     scrollY: "50vh",
@@ -108,6 +132,7 @@
                     processing: true,
                     deferRender: true,
                     pageLength: 1000,
+                    lengthMenu: [[10, 25, 50, 1000, -1], [10, 25, 50, 1000, "All"]],
                     ajax: {
                         'url': url,
                         'dataSrc': ""
@@ -116,12 +141,15 @@
 
                 initialized[attr_id] = true
             }
-
-            $(".modal").on("shown.bs.modal", function (e) {
-                $('table[name="values"]').DataTable().columns.adjust()
-            });
-
         });
+
+
+
+        $('#log_table tfoot th').each(function () {
+            var title = $(this).text();
+            $(this).html('<input type="text" placeholder="Search ' + title.trim() + '" />');
+        });
+
     });
 
 
@@ -196,14 +224,27 @@
 
                 //Initialize table
                 $(element).find(".modal").on("shown.bs.modal", function (e) {
-                    $('table[name="values"]').DataTable().columns.adjust()
+                    attr_id = ($(e.target).attr("attr_id"))
+                    var v_table = $(`table[name="values"][attr_id="${attr_id}"]`)
+                    $(v_table).DataTable().columns.adjust()
                 });
 
+                let url = "{% url 'get-attr-values' log_id=log.id attr_id=1234 %}".replace(/1234/, attr_id)
                 $(element).find("table").DataTable({
-                    scrollY: '50vh',
+                    scrollY: "50vh",
                     scrollCollapse: true,
-                    paging: false
+                    scroller: true,
+                    // paging: false,
+                    processing: true,
+                    deferRender: true,
+                    pageLength: 1000,
+                    lengthMenu: [[10, 25, 50, 1000, -1], [10, 25, 50, 1000, "All"]],
+                    ajax: {
+                        'url': url,
+                        'dataSrc': ""
+                    }
                 });
+                initialized[attr_id] = true
             },
 
             // handle a non-successful response
