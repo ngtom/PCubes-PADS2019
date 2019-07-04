@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
 from import_xes.models import EventLog, Dimension, Attribute, ProcessCube
+from slice_dice.models import Slice, Dice
 from django_tables2 import Table
 import django_tables2 as tables
 import time
@@ -71,6 +72,11 @@ def add_attribute(request, log_id, cube_id):
 
     cells = cube.get_num_cells()
 
+    d_slice = Slice.objects.filter(dimension=dimension)
+    d_dice = Dice.objects.filter(dimension=dimension)
+    d_slice.delete()
+    d_dice.delete()
+
     data = {'dim': dimension, 'attribute': attribute}
     html = render_to_string('dimension_editor/attribute.html', data, request)
     ret = {"html": html, 'num_elements': num_elements, 'cells': cells}
@@ -101,6 +107,11 @@ def rem_attribute(request, log_id, cube_id):
     html = render_to_string(
         'dimension_editor/dropdown_button.html', data, request)
     ret = {"html": html, 'num_elements': num_elements, 'cells': cells}
+
+    d_slice = Slice.objects.filter(dimension=dimension)
+    d_dice = Dice.objects.filter(dimension=dimension)
+    d_slice.delete()
+    d_dice.delete()
 
     return JsonResponse(ret)
 
@@ -183,6 +194,11 @@ def save_step(request, log_id, cube_id):
         cells = cube.get_num_cells()
 
         ret = {'num_elements': num_elements, 'cells': cells}
+
+        d_slice = Slice.objects.filter(dimension=dimension)
+        d_dice = Dice.objects.filter(dimension=dimension)
+        d_slice.delete()
+        d_dice.delete()
 
         return JsonResponse(ret)
 
