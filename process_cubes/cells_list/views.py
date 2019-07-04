@@ -62,7 +62,7 @@ def get_dim_values(dimension):
                 upper = orig_values[upper_ind]
                 range_values.append('{} to {}'.format(lower, upper))
             else:
-                range_values.append(lower)
+                range_values.append(str(lower))
 
         values_lists.append(range_values)
 
@@ -124,7 +124,7 @@ def get_restricted_dim_values(dimension):
                     upper = orig_values[upper_ind]
                     range_values.append('{} to {}'.format(lower, upper))
                 else:
-                    range_values.append(lower)
+                    range_values.append(str(lower))
 
             values_lists.append(range_values)
 
