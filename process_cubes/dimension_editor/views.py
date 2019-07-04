@@ -108,8 +108,8 @@ def rem_attribute(request, log_id, cube_id):
         'dimension_editor/dropdown_button.html', data, request)
     ret = {"html": html, 'num_elements': num_elements, 'cells': cells}
 
-    d_slice = Slice.objects.filter(dimension=dimension)
-    d_dice = Dice.objects.filter(dimension=dimension)
+    d_slice = Slice.objects.filter(dimension=dim)
+    d_dice = Dice.objects.filter(dimension=dim)
     d_slice.delete()
     d_dice.delete()
 
