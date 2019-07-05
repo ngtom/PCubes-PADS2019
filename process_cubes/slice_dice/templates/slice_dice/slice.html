@@ -24,7 +24,6 @@
     <thead class="thead-dark">
         <tr>
             <th>
-                <button class="btn btn-primary" onclick="selectAll()">Select all</button>
             </th>
 
             {% for attr in dimension.attributes.all %}
@@ -155,18 +154,6 @@
         console.log("asd")
     });
 
-    function selectAll() {
-        var table = $('#log_table').DataTable()
-
-        let filtered_rows = table.rows({ selected: true })
-        let all_rows = table.rows()
-
-        if (filtered_rows.count() == all_rows.count()) {
-            $('#log_table').DataTable().rows({ filter: 'applied' }).deselect()
-        } else {
-            $('#log_table').DataTable().rows({ filter: 'applied' }).select()
-        }
-    }
 
     function submit_slice() {
         var selected = $('#log_table').DataTable().rows({ selected: true }).data()
