@@ -1,6 +1,6 @@
 django #
 djongo #MongoDB Connector
-sqlparse==0.2.4 #required by djongo
+sqlparse==0.4.4 #required by djongo
 pm4py
 dnspython
 django-tables2
